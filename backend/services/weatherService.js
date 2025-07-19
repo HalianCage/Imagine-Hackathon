@@ -1,5 +1,5 @@
 const axios = require('axios');
-require('dotenv').config();
+// require('dotenv').config();
 
 const latitude = 19.073736
 const longitude = 72.870549
