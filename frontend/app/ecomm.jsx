@@ -2,6 +2,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, SafeAreaView, TouchableOpacity, Linking } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import logo from '../assets/images/logoHack.png';
 
 const VendorList = () => {
   const vendors = [
@@ -37,7 +38,7 @@ const VendorList = () => {
       <SafeAreaView style={styles.header}>
         <View style={styles.header_box}>
           <Image
-            source={require("@/assets/images/logoHack.png")}
+            source={logo}
             style={styles.logo}
             resizeMode="contain"
           />

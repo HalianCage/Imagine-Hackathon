@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router"; // Ensure this is imported if using Expo Router
+import logo from '../assets/images/logoHack.png';
 
 const progress = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -37,7 +38,7 @@ const progress = () => {
       <SafeAreaView style={styles.header}>
         <View style={styles.header_box}>
           <Image
-            source={require("@/assets/images/logoHack.png")}
+            source={logo}
             style={styles.logo}
             resizeMode="contain"
           />
