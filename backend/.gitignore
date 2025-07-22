@@ -1,0 +1,55 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.pyc
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables
+.env
+*.env
+
+# VSCode settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ONNX model files (optional: only if they are large and stored elsewhere)
+# *.onnx
+
+# Flask-specific
+instance/
+*.db
+*.sqlite3
+
+# JSON files written at runtime
+diseases.json
+
+# Logs
+*.log
+
+# Test coverage reports
+coverage.xml
+htmlcov/
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+
+# Postgres dump files
+*.sql
+*.dump

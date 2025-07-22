@@ -1,0 +1,27 @@
+Inside the database.sql updated the code the save the prediction from the model along with the user id.
+
+Inside the disease.py updated to just use the /disease route and completely removed the /predict 
+as we don't need any of these parameters.
+
+We will directly pass those into the groq prompt.
+
+!! Things not working !!
+
+weatherService.js cannot fetch the weather data and geolocation.
+
+!! Things to be done !!
+
+Integrate the groq service 
+Also currently we have a 2 flask services one as crop_milestone whih has these parameters and /predict
+and secondly we have disease.py which has this classification model.
+So if we dont need those parameters remove the crop_milestone.py.
+
+!! Dependencies !!
+
+onnxruntime
+psycopg2
+
+|| Doubt ||
+
+Do we need seperate table for the prediction?
+Or simply we can save it inside records table.
