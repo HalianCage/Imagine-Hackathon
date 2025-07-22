@@ -14,6 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons, Feather, FontAwesome6, FontAwesome5 } from "@expo/vector-icons";
+import logo from '../assets/images/logoHack.png';
 
 const Home = () => {
   const router = useRouter();
@@ -102,7 +103,7 @@ const Home = () => {
       <SafeAreaView style={styles.header}>
         <View style={styles.header_box}>
           <Image
-            source={require("@/assets/images/logoHack.png")}
+            source={logo}
             style={styles.logo}
             resizeMode="contain"
           />

@@ -53,3 +53,6 @@ htmlcov/
 # Postgres dump files
 *.sql
 *.dump
+
+# Node.js dependencies
+node_modules/
