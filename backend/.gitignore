@@ -54,5 +54,6 @@ htmlcov/
 *.sql
 *.dump
 
-# Node.js dependencies
+#nodeJS dependencies
 node_modules/
+
