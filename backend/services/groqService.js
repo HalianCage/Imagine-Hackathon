@@ -1,7 +1,9 @@
 const Groq = require("groq-sdk");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const groq = new Groq({
-  apiKey: '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',
+  apiKey: process.env.groq_API_Key,
 });
 
 async function generateDiseaseReport(diseaseName, weatherData = null, language = 'English') {
