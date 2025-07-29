@@ -51,6 +51,7 @@ def preprocess_image(image_bytes):
 @app.route('/disease', methods=['POST'])
 def predict():
     if 'image' not in request.files:
+        print("Error: No image file in request")
         return jsonify({'error': 'No image file in request'}), 400
 
     image_bytes = request.files['image'].read()
@@ -81,7 +82,7 @@ def predict():
         conn.close()
 
     except Exception as e:
-        return jsonify({"message": "Error saving to DB", "error": str(e)}), 500
+        print(f"Database error: {e}")
 
     # Optional JSON logging
     file_path = "diseases.json"

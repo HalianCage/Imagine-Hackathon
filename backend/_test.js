@@ -1,4 +1,5 @@
-const { saveCropData } = require('../db_functions/cropService')
+// const { saveCropData } = require('./services.cropService.js')
+const { fetchWeeklyWeatherData } = require('../backend/services/weatherService')
 
 
 
@@ -21,4 +22,24 @@ async function _testSaveCropData() {
     }
 }
 
-_testSaveCropData()
+
+//function to test the weather service API
+async function _testWeatherService() {
+
+    console.log("testing the weather service API")
+
+    //try-catch block
+    try {
+
+        const weatherData = await fetchWeeklyWeatherData();
+        console.log(weatherData)
+        
+    }
+    catch(e) {
+        console.log("Some error occured while fetching weather data", e)
+    }
+
+}
+
+// _testSaveCropData()
+_testWeatherService()
