@@ -11,10 +11,16 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 // import axios from "axios"; // You would typically use axios or fetch
 
+
+import { LocationContext } from "../context/LocationContext"; //  LOCATION PAGE PATH
+import { useContext } from "react";
+
+
 const LoadingPage = () => {
   const router = useRouter();
   const { imageUri } = useLocalSearchParams();
   const [loadingText, setLoadingText] = useState("Processing your crop image");
+  const location = useContext(LocationContext);
 
   useEffect(() => {
     const processImageWithBackend = async () => {
@@ -84,6 +90,8 @@ const LoadingPage = () => {
         router.replace("/Home"); // Navigate back to Home or a suitable page
       }
     };
+
+     formData.append("location", JSON.stringify(location || null));  // Include location data if available
 
     processImageWithBackend();
   }, []);
