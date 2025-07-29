@@ -7,7 +7,7 @@ import {
   Pressable,
   Image,
   ScrollView,
-  Alert, // Added Alert for permission feedback
+  Alert,
 } from "react-native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Feather from "@expo/vector-icons/Feather";
@@ -16,31 +16,46 @@ import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import logo from '../assets/images/logoHack.png'; // Assuming logoHack.png is CropCare logo
+import logo from '../assets/images/logoHack.png';
+
+// Import translations
+import translations from '../translations'; // Adjust path if you placed it elsewhere
+import AsyncStorage from '@react-native-async-storage/async-storage'; // To save user's language preference
 
 const Home = () => {
   const router = useRouter();
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
-  const [image, setImage] = useState(null); // Keep if needed for other functionalities, though not directly used for display here
+  const [image, setImage] = useState(null);
+  const [currentLanguage, setCurrentLanguage] = useState('en'); // Default to English
 
   useEffect(() => {
     (async () => {
+      // Load saved language preference
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      }
       // Request gallery permission
       const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setHasGalleryPermission(galleryStatus.status === "granted");
     })();
   }, []);
 
-  // Function to pick an image from the gallery
+  // Function to set language and save preference
+  const setAppLanguage = async (lang) => {
+    setCurrentLanguage(lang);
+    await AsyncStorage.setItem('appLanguage', lang); // Save for next app launch
+  };
+
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.status !== "granted") {
-      Alert.alert("Permission denied", "Gallery access is required.");
+      Alert.alert(translations[currentLanguage].permission_denied_gallery, translations[currentLanguage].permission_denied_gallery_message);
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: false, // NO CROP
+      allowsEditing: false,
       quality: 1,
     });
 
@@ -50,11 +65,10 @@ const Home = () => {
     }
   };
 
-  // FOR CAMERA INTEGRATION
   const pickCameraImage = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (permissionResult.status !== "granted") {
-      Alert.alert("Permission denied", "Camera access is required.");
+      Alert.alert(translations[currentLanguage].permission_denied_camera, translations[currentLanguage].permission_denied_camera_message);
       return;
     }
 
@@ -68,7 +82,6 @@ const Home = () => {
     if (!result.canceled) {
       let uri;
 
-      // Safely extract image URI
       if (result.assets && result.assets.length > 0) {
         uri = result.assets[0].uri;
       } else if (result.uri) {
@@ -78,9 +91,9 @@ const Home = () => {
       console.log("Camera image URI:", uri);
 
       if (uri) {
-        router.push({ pathname: "/loading", params: { imageUri: uri } });
+        router.push({ pathname: "/loading", params: { imageUri: uri, selectedLanguage: currentLanguage } });
       } else {
-        Alert.alert("Error", "Unable to retrieve photo URI from camera.");
+        Alert.alert(translations[currentLanguage].error_retrieving_photo, translations[currentLanguage].error_retrieving_photo_message);
       }
     }
   };
@@ -91,13 +104,13 @@ const Home = () => {
         <View style={styles.header_box}>
           <View style={styles.logoContainer}>
             <Image
-              source={logo} // Assuming this is the leaf icon
+              source={logo}
               style={styles.leafIcon}
               resizeMode="contain"
             />
             <View>
-              <Text style={styles.appTitle}>CropCare</Text>
-              <Text style={styles.appSubtitle}>Smart Crop Diagnosis</Text>
+              <Text style={styles.appTitle}>{translations[currentLanguage].app_title}</Text>
+              <Text style={styles.appSubtitle}>{translations[currentLanguage].app_subtitle}</Text>
             </View>
           </View>
           <Pressable onPress={() => router.push("/profile")}>
@@ -106,79 +119,88 @@ const Home = () => {
         </View>
       </SafeAreaView>
 
+      {/* Language Selection Buttons */}
+      <View style={styles.languageSelector}>
+        <Pressable onPress={() => setAppLanguage('en')} style={[styles.langButton, currentLanguage === 'en' && styles.activeLangButton]}>
+          <Text style={styles.langButtonText}>English</Text>
+        </Pressable>
+        <Pressable onPress={() => setAppLanguage('hi')} style={[styles.langButton, currentLanguage === 'hi' && styles.activeLangButton]}>
+          <Text style={styles.langButtonText}>हिंदी</Text>
+        </Pressable>
+        <Pressable onPress={() => setAppLanguage('mr')} style={[styles.langButton, currentLanguage === 'mr' && styles.activeLangButton]}>
+          <Text style={styles.langButtonText}>मराठी</Text>
+        </Pressable>
+      </View>
+
+
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-       
 
         <View style={styles.uploadSection}>
-          <Text style={styles.sectionTitle}>Upload Photo</Text>
-          <Text style={styles.sectionSubtitle}>Choose how you'd like to capture your crop image</Text>
+          <Text style={styles.sectionTitle}>{translations[currentLanguage].upload_section_title}</Text>
+          <Text style={styles.sectionSubtitle}>{translations[currentLanguage].upload_section_subtitle}</Text>
           <View style={styles.uploadOptions}>
             <Pressable style={styles.uploadCard} onPress={pickCameraImage}>
               <Feather name="camera" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Camera</Text>
-              <Text style={styles.cardSubtitle}>Take a photo now</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].camera_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].camera_card_subtitle}</Text>
             </Pressable>
             <Pressable style={styles.uploadCard} onPress={pickImage}>
               <FontAwesome6 name="images" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Gallery</Text>
-              <Text style={styles.cardSubtitle}>Choose from gallery</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].gallery_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].gallery_card_subtitle}</Text>
             </Pressable>
           </View>
         </View>
 
         <View style={styles.additionalFeaturesContainer}>
-          <Text style={styles.sectionTitle}>Additional Features</Text>
+          <Text style={styles.sectionTitle}>{translations[currentLanguage].additional_features_title}</Text>
           <View style={styles.featuresGrid}>
             <Pressable style={styles.featureCard} onPress={() => router.push("/progress")}>
               <MaterialIcons name="history" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Diagnosis History</Text>
-              <Text style={styles.cardSubtitle}>View past reports</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].diagnosis_history_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].diagnosis_history_card_subtitle}</Text>
             </Pressable>
             <Pressable style={styles.featureCard} onPress={() => router.push("/consultation")}>
               <MaterialIcons name="medical-services" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Expert Consultation</Text>
-              <Text style={styles.cardSubtitle}>Connect with experts</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].expert_consultation_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].expert_consultation_card_subtitle}</Text>
             </Pressable>
             <Pressable style={styles.featureCard} onPress={() => console.log("Crop Monitoring")}>
               <MaterialIcons name="show-chart" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Crop Monitoring</Text>
-              <Text style={styles.cardSubtitle}>Track crop health</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].crop_monitoring_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].crop_monitoring_card_subtitle}</Text>
             </Pressable>
             <Pressable style={styles.featureCard} onPress={() => console.log("Care Reminders")}>
               <MaterialIcons name="access-alarm" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>Care Reminders</Text>
-              <Text style={styles.cardSubtitle}>Get timely alerts</Text>
+              <Text style={styles.cardTitle}>{translations[currentLanguage].care_reminders_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].care_reminders_card_subtitle}</Text>
             </Pressable>
           </View>
         </View>
 
          <View style={styles.introContainer}>
-          <Text style={styles.introTitle}>Get Instant Crop Diagnosis with AI</Text>
+          <Text style={styles.introTitle}>{translations[currentLanguage].intro_title}</Text>
           <Text style={styles.introText}>
-            Upload a photo of your crop to receive an instant diagnosis with
-            tailored advice and tips to ensure your plants remain healthy and
-            thriving.
+            {translations[currentLanguage].intro_text}
           </Text>
         </View>
 
         <View style={styles.featuresContainer}>
           <View style={styles.featureItem}>
             <MaterialIcons name="flash-on" size={24} color="#66bb6a" />
-            <Text style={styles.featureText}>Instant diagnosis</Text>
+            <Text style={styles.featureText}>{translations[currentLanguage].feature_instant_diagnosis}</Text>
           </View>
           <View style={styles.featureItem}>
             <MaterialIcons name="security" size={24} color="#66bb6a" />
-            <Text style={styles.featureText}>Expert recommendations</Text>
+            <Text style={styles.featureText}>{translations[currentLanguage].feature_expert_recommendations}</Text>
           </View>
           <View style={styles.featureItem}>
             <MaterialIcons name="local-florist" size={24} color="#66bb6a" />
-            <Text style={styles.featureText}>Healthier crops</Text>
+            <Text style={styles.featureText}>{translations[currentLanguage].feature_healthier_crops}</Text>
           </View>
         </View>
       </ScrollView>
     </View>
-
-    
   );
 };
 
@@ -187,11 +209,11 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f6eaff', // Light gray background
+    backgroundColor: '#e9f6eaff',
   },
  header: {
   backgroundColor: '#499a6cff',
-  height: 90, // Fixed height for header
+  height: 90,
   paddingHorizontal: 20,
   borderBottomLeftRadius: 2,
   borderBottomRightRadius: 2,
@@ -200,7 +222,7 @@ const styles = StyleSheet.create({
   shadowOpacity: 0.1,
   shadowRadius: 3,
   elevation: 3,
-  justifyContent: 'center', // Vertically center content
+  justifyContent: 'center',
 },
   header_box: {
     flexDirection: 'row',
@@ -210,10 +232,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    
+
   },
    leafIcon: {
-  width: 90,         // Bigger, more visible
+  width: 90,
   height: 90,
   marginRight: 12,
   marginLeft: -25,
@@ -230,12 +252,12 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   profileIcon: {
-    backgroundColor: '#e0e0e0', // Light gray circle for profile icon
+    backgroundColor: '#e0e0e0',
     borderRadius: 20,
     padding: 8,
   },
   scrollViewContent: {
-    paddingBottom: 20, // Add some padding at the bottom for scrollable content
+    paddingBottom: 20,
   },
   introContainer: {
     padding: 20,
@@ -337,12 +359,32 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 15,
     alignItems: 'center',
-    width: '45%', // Approx. half width for two columns
+    width: '45%',
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
+  },
+  languageSelector: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#f0f0f0',
+  },
+  langButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    backgroundColor: '#ccc',
+  },
+  activeLangButton: {
+    backgroundColor: '#499a6cff',
+  },
+  langButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

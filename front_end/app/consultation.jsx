@@ -1,14 +1,28 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // For profile icon
+import { MaterialIcons } from '@expo/vector-icons';
+
+// Import translations and AsyncStorage
+import translations from '../translations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ConsultancyPage() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState('en'); // Default to English
+
+  useEffect(() => {
+    // Load saved language preference
+    (async () => {
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      }
+    })();
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleSubmit = () => {
-    Alert.alert('Submitted', 'Your consultancy request has been submitted.');
+    Alert.alert(translations[currentLanguage].submitted_alert_title, translations[currentLanguage].submitted_alert_message);
   };
 
   return (
@@ -22,20 +36,21 @@ export default function ConsultancyPage() {
 
       {/* Schedule Consultancy Box */}
       <View style={styles.scheduleBox}>
-        <Text style={styles.scheduleText}>Schedule Online Consultancy</Text>
+        <Text style={styles.scheduleText}>{translations[currentLanguage].schedule_consultancy_box}</Text>
       </View>
 
       {/* Expert Care Text */}
-      <Text style={styles.expertText}>Expert care for your crops, just a click away.</Text>
+      <Text style={styles.expertText}>{translations[currentLanguage].expert_care_text}</Text>
 
       {/* Date Section */}
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Select Date</Text>
+          <Text style={styles.buttonText}>{translations[currentLanguage].select_date_button}</Text>
         </TouchableOpacity>
         <TextInput
           style={styles.input}
-          placeholder="Pick a date"
+          placeholder={translations[currentLanguage].pick_date_placeholder}
+          placeholderTextColor="#666" // Good practice to set placeholder color
           value={selectedDate}
           onChangeText={setSelectedDate}
         />
@@ -44,11 +59,12 @@ export default function ConsultancyPage() {
       {/* Time Section */}
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Select Time</Text>
+          <Text style={styles.buttonText}>{translations[currentLanguage].select_time_button}</Text>
         </TouchableOpacity>
         <TextInput
           style={styles.input}
-          placeholder="Pick a time (24hr)"
+          placeholder={translations[currentLanguage].pick_time_placeholder}
+          placeholderTextColor="#666" // Good practice to set placeholder color
           value={selectedTime}
           onChangeText={setSelectedTime}
         />
@@ -56,12 +72,12 @@ export default function ConsultancyPage() {
 
       {/* Share Report (Not clickable) */}
       <View style={styles.reportContainer}>
-        <Text style={styles.reportText}>Share Your Report</Text>
+        <Text style={styles.reportText}>{translations[currentLanguage].share_report_text}</Text>
       </View>
 
       {/* Submit Button */}
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+        <Text style={styles.submitText}>{translations[currentLanguage].submit_button}</Text>
       </TouchableOpacity>
     </View>
   );
