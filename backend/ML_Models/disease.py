@@ -17,16 +17,9 @@ app = Flask(__name__)
 # Load the ONNX model
 session = ort.InferenceSession("crop_disease_efficientnet.onnx")
 
-# Class labels
-class_labels = [
-    'Pepper__bell___Bacterial_spot',
-    'Pepper__bell___healthy',
-    'Potato___Early_blight',
-    'Potato___Late_blight',
-    'Tomato___Early_blight',
-    'Tomato___Late_blight',
-    'Tomato___Tomato_mosaic_virus'
-]
+# Load class labels from file
+with open("class_names.json") as f:
+    class_labels = json.load(f)
 
 # Connect to PostgreSQL using env vars
 def get_db_connection():

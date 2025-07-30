@@ -1,5 +1,10 @@
-1) Finish updating the weatherService api and make sure to get it up and running
-2) Test the level 1 ML model working, make any changes if required, and finalize it.
-3) integrate the level 2 ML model and test its working.
-4) Work about connecting the frontend with the backend.(need to check out only one api)
-5) Check out about the multilingual.
+1) Locations from the frontend. Integrate the locations package and get and send user device location to the backend. Make sure to set the default latitude and longitude to "null" which backend can identify and subsequently not use weatherAPI. - SAMIKSHA
+2) Implement the latitude and longitude from frontend code with the failsafe to not use weatherAPI if not location sent. - KARTIK
+3) Integrate the level 1 ML model successfully. - KARTIK & TANISH
+4) Integrate the level 2 ML model successfully. - KARTIK & TANISH
+5) Complete the implementation of Hindi-English toggle. - SRUSHTI
+6) User login/registration and user sessions - KARTIK
+
+
+POSSIBLE EXTRA FEATURES :-
+1) Include plant stage in disease prediction and report generation

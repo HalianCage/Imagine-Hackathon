@@ -113,21 +113,26 @@ const LoadingPage = () => {
 
         console.log("FormData prepared for backend call...");
 
-        // Here you would make your actual backend API call
-        // Example:
-        // const response = await fetch('YOUR_BACKEND_ENDPOINT', {
-        //   method: 'POST',
-        //   body: formData,
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data',
-        //   },
-        // });
-        // 
-        // if (!response.ok) {
-        //   throw new Error(`HTTP error! status: ${response.status}`);
-        // }
-        // 
-        // const backendResult = await response.json();
+        // backend API
+        try {
+          const response = await fetch('http://10.255.30.113:3000/api/crop/save', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const backendResult = await response.json();
+        } catch (error) {
+
+          console.error("Error calling backend API:", error);
+          
+        }
 
         // --- DUMMY RESULT FOR DEMONSTRATION ---
         const dummyResult = {
