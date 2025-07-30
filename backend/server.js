@@ -18,6 +18,9 @@ const upload = multer({ dest: "uploads/" });
 app.use(express.json());
 app.use(cors());
 
+//making the uploads folder public so that it is accessible over http request(for progress_tracker)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 //test route to check if the server is running
 app.get("/", (req, res) => {
@@ -75,14 +78,45 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
             return res.status(400).json({ message: "No image file uploaded" });
         }
 
-        
-        const imagePath = path.join(__dirname, "uploads", req.file.filename);
-        console.log("Image path:", imagePath);
+        //local storage image path for the disease prediction model
+        const imagePathDisease = path.join(__dirname, "uploads", req.file.filename);
+        console.log("Image path for disease prediction model:", imagePathDisease);
+
+
+        //public url of image for progress tracking page from frontend to access
+        const imagePathPublic = `http:\\\\192.168.1.2:3000\\uploads\\${req.file.filename}`;
+        console.log("Public Image URL:", imagePathPublic);
+
+
+        //creating the client database connection
+        const client = await pool.connect()
+
+        //pushing the image path to the database
+        try {
+
+            await client.query('BEGIN')
+
+            const queryResult = await client.query(`INSERT INTO record_table(user_id, image_uri) VALUES ($1, $2) RETURNING id`, [user_id, imagePathPublic])
+
+            await client.query('COMMIT')
+
+            id = queryResult.rows[0].id
+
+            console.log('successfully stored the image uri in the database. row Id: ', id)
+
+
+        } catch (error) {
+            
+            console.error("Some error occured while pushing image path to the database", error)
+            res.status(500).json({error: "Some error occured! Please try again"})
+
+        }
+
 
         const formData = new FormData();
-        formData.append("image", fs.createReadStream(imagePath));
-        console.log("ImagePath: ", imagePath)
-        console.log("formData: ", formData)
+        formData.append("image", fs.createReadStream(imagePathDisease));
+        // console.log("ImagePath: ", imagePathDisease)
+        // console.log("formData: ", formData)
 
 
         
@@ -108,10 +142,6 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         //debugging line to check the disease name
         console.log("Predicted Disease:", diseaseName);
-
-
-        //creating database client
-        const client = await pool.connect()
         
 
         //pushing predicted disease to the database
@@ -119,13 +149,11 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
             
             await client.query("BEGIN")
 
-            const formsQueryResult = await client.query(`INSERT INTO record_table(user_id, disease_name) VALUES ($1, $2) RETURNING id`, [user_id, diseaseName])
-
-            id = formsQueryResult.rows[0].id
+            const formsQueryResult = await client.query(`UPDATE record_table SET disease_name = $1 WHERE id = $2 `, [diseaseName, id])
 
             await client.query("COMMIT")
 
-            console.log('disease name insert wuery successful. returned row id: ', id)
+            console.log('disease name insert query successful')
 
 
         } catch (error) {
@@ -139,7 +167,7 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
 
         //if-else block to fetch weather data only if location has been passed
-        if(!location) {
+        if(!location || !location.latitude || !location.longitude) {
 
             console.log("No location has been passed from frontend to backend")
             
@@ -280,6 +308,35 @@ app.get('/getReports', async (req, res) => {
         res.status(500).json({error: "Unable to process request, please try again"})
     }
 
+
+})
+
+//route to get a specific report
+app.get('/getSingleReport/:id', async (req, res) => {
+
+    console.log('inside getSingleReport route')
+
+    const id = req.params.id
+    let report;
+
+    console.log('id to be fetched: ', id)
+
+    const client = await pool.connect()
+
+    try {
+        const queryResult = await client.query(`SELECT report FROM record_table WHERE id = $1`, [id])
+
+        console.log("Successfully fetched report")
+
+        console.log(queryResult.rows[0].report)
+        report = queryResult.rows[0].report
+        
+    } catch (error) {
+        console.error("Some error occured while fetching a report: ", error)
+        res.status(500).json({error: "Some error occured while fetching data. Please try again"})
+    }
+
+    res.json({report})
 
 })
 

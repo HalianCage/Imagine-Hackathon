@@ -38,8 +38,53 @@ const Progress = () => {
     fetchReports();
   }, []);
 
-  const handleTilePress = (reportId) => {
-    router.push(`/report/${reportId}`);
+  const handleTilePress = async (reportId, time_stamp) => {
+    
+    console.log("Inside handleTilePress")
+    console.log("Row Id: ", reportId)
+    console.log("Time stamp: ", time_stamp)
+
+    let report;
+
+    try {
+
+      //api fetch to get the specific report
+      const response = await fetch(`http://192.168.1.2:3000/getSingleReport/${reportId}`, {
+        method: 'GET',
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const backendResult = await response.json();
+
+      report = backendResult.report
+
+      console.log("Backend API response:", backendResult.report);
+
+    } catch (error) {
+      console.error("Some error occured while calling api. Please try again:", error)
+    }
+
+    const dummyResult = {
+      disease: report.disease,
+      symptoms: report.symptoms,
+      causes: report.causes,
+      treatment: report.treatment,
+      prevention: report.prevention,
+      generation_datetime: time_stamp,
+      advice: report.note
+    }
+
+    router.push({
+          pathname: "/output",
+          params: {
+            imageUri: null,
+            result: JSON.stringify(dummyResult),
+          },
+        });
+
   };
 
   return (
@@ -58,7 +103,7 @@ const Progress = () => {
             <TouchableOpacity
               key={report.id || index}
               style={styles.tile}
-              onPress={() => handleTilePress(report.id)}
+              onPress={() => handleTilePress(report.id, report.time_stamp)}
             >
               <View style={styles.tileLeft}>
                 <Text style={styles.disease}>{report.disease_name || "Pending Diagnosis"}</Text>
