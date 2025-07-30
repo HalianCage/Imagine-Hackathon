@@ -115,7 +115,7 @@ const LoadingPage = () => {
 
         // backend API
         try {
-          const response = await fetch('http://10.255.30.113:3000/api/crop/save', {
+          const response = await fetch('http://10.255.30.84:3000/api/crop/save', {
             method: 'POST',
             body: formData,
             headers: {
@@ -128,34 +128,52 @@ const LoadingPage = () => {
           }
           
           const backendResult = await response.json();
+
+          report = backendResult.report
+
+          console.log("Backend API response:", backendResult.report);
         } catch (error) {
 
           console.error("Error calling backend API:", error);
           
         }
 
-        // --- DUMMY RESULT FOR DEMONSTRATION ---
         const dummyResult = {
-          disease: "Leaf Blight",
-          symptoms: ["Yellow spots on leaves", "Brown lesions", "Reduced growth"],
-          causes: ["Fungal infection", "High humidity"],
-          treatment: {
-            organic: ["Neem oil spray", "Remove infected leaves"],
-            non_organic: ["Apply specific fungicide X", "Foliar spray Y"],
-          },
-          prevention: ["Ensure proper spacing", "Good air circulation", "Resistant varieties"],
+          disease: report.disease,
+          symptoms: report.symptoms,
+          causes: report.causes,
+          treatment: report.treatment,
+          prevention: report.prevention,
           generation_datetime: new Date().toISOString(),
           processed_with: {
             language: currentLanguage,
             location: location,
             image_processed: true
           }
-        };
+        }
+
+        // --- DUMMY RESULT FOR DEMONSTRATION ---
+        // const dummyResult = {
+        //   disease: "Leaf Blight",
+        //   symptoms: ["Yellow spots on leaves", "Brown lesions", "Reduced growth"],
+        //   causes: ["Fungal infection", "High humidity"],
+        //   treatment: {
+        //     organic: ["Neem oil spray", "Remove infected leaves"],
+        //     non_organic: ["Apply specific fungicide X", "Foliar spray Y"],
+        //   },
+        //   prevention: ["Ensure proper spacing", "Good air circulation", "Resistant varieties"],
+        //   generation_datetime: new Date().toISOString(),
+        //   processed_with: {
+        //     language: currentLanguage,
+        //     location: location,
+        //     image_processed: true
+        //   }
+        // };
 
         // Simulate network delay
-        console.log("Simulating processing delay...");
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        console.log("Processing complete, navigating to output...");
+        // console.log("Simulating processing delay...");
+        // await new Promise(resolve => setTimeout(resolve, 3000));
+        // console.log("Processing complete, navigating to output...");
 
         // Navigate to output page
         router.replace({

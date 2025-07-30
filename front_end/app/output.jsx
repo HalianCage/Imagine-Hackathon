@@ -1,5 +1,7 @@
-// output.jsx
 import React from "react";
+import * as Print from "expo-print";
+import * as Speech from "expo-speech";
+import * as Sharing from "expo-sharing";
 import {
   View,
   Text,
@@ -7,10 +9,9 @@ import {
   ScrollView,
   Button,
   Alert,
+  Platform,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import RNHTMLtoPDF from "react-native-html-to-pdf";
-import * as Sharing from "expo-sharing";
 
 const OutputPage = () => {
   const { imageUri, result } = useLocalSearchParams();
@@ -23,57 +24,87 @@ const OutputPage = () => {
     treatment,
     prevention,
     generation_datetime,
+    advice,
   } = parsedResult;
 
   const handleDownloadReport = async () => {
     const htmlContent = `
-      <h1>Diagnosis Report</h1>
-      ${generation_datetime ? `<p><strong>Generated On:</strong> ${new Date(generation_datetime).toLocaleString()}</p>` : ""}
-      <p><strong>Disease:</strong> ${disease || "N/A"}</p>
-      ${symptoms?.length ? `<p><strong>Symptoms:</strong><br>${symptoms.map(s => `• ${s}<br>`).join("")}</p>` : ""}
-      ${causes?.length ? `<p><strong>Causes:</strong><br>${causes.map(c => `• ${c}<br>`).join("")}</p>` : ""}
-      ${treatment?.organic?.length ? `<p><strong>Treatment (Organic):</strong><br>${treatment.organic.map(t => `• ${t}<br>`).join("")}</p>` : ""}
-      ${treatment?.non_organic?.length ? `<p><strong>Treatment (Non-Organic):</strong><br>${treatment.non_organic.map(t => `• ${t}<br>`).join("")}</p>` : ""}
-      ${prevention?.length ? `<p><strong>Prevention:</strong><br>${prevention.map(p => `• ${p}<br>`).join("")}</p>` : ""}
-      ${parsedResult.advice ? `<p><strong>Additional Advice:</strong><br>${parsedResult.advice}</p>` : ""}
+      <html>
+        <body>
+          <h1>Diagnosis Report</h1>
+          ${generation_datetime ? `<p><strong>Generated On:</strong> ${new Date(generation_datetime).toLocaleString()}</p>` : ""}
+          <p><strong>Disease:</strong> ${disease || "N/A"}</p>
+          ${symptoms?.length ? `<p><strong>Symptoms:</strong><br>${symptoms.map(s => `• ${s}<br>`).join("")}</p>` : ""}
+          ${causes?.length ? `<p><strong>Causes:</strong><br>${causes.map(c => `• ${c}<br>`).join("")}</p>` : ""}
+          ${treatment?.organic?.length ? `<p><strong>Treatment (Organic):</strong><br>${treatment.organic.map(t => `• ${t}<br>`).join("")}</p>` : ""}
+          ${treatment?.non_organic?.length ? `<p><strong>Treatment (Non-Organic):</strong><br>${treatment.non_organic.map(t => `• ${t}<br>`).join("")}</p>` : ""}
+          ${prevention?.length ? `<p><strong>Prevention:</strong><br>${prevention.map(p => `• ${p}<br>`).join("")}</p>` : ""}
+          ${advice ? `<p><strong>Additional Advice:</strong><br>${advice}</p>` : ""}
+        </body>
+      </html>
     `;
 
     try {
-      const { uri } = await RNHTMLtoPDF.convert({
-        html: htmlContent,
-        fileName: "CropCare_Diagnosis_Report",
-        base64: false,
-      });
-
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri);
       } else {
-        Alert.alert("Success", "Report saved to: " + uri);
+        Alert.alert("Report saved", "PDF generated at: " + uri);
       }
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      Alert.alert("Error", "Failed to generate report.");
+      console.error("PDF Generation Error:", error);
+      Alert.alert("Error", "Failed to generate or share the report.");
+    }
+  };
+
+  const speakReport = () => {
+    const spokenText = `
+      Diagnosis Report.
+      ${generation_datetime ? `Generated On: ${new Date(generation_datetime).toLocaleString()}.` : ""}
+      Disease: ${disease || "Not available"}.
+      ${symptoms?.length ? `Symptoms: ${symptoms.join(", ")}.` : ""}
+      ${causes?.length ? `Causes: ${causes.join(", ")}.` : ""}
+      ${treatment?.organic?.length ? `Organic Treatments: ${treatment.organic.join(", ")}.` : ""}
+      ${treatment?.non_organic?.length ? `Non-Organic Treatments: ${treatment.non_organic.join(", ")}.` : ""}
+      ${prevention?.length ? `Prevention methods: ${prevention.join(", ")}.` : ""}
+      ${advice ? `Additional Advice: ${advice}` : ""}
+    `;
+    try {
+      Speech.speak(spokenText, {
+        language: "en",
+        rate: 0.9,
+      });
+    } catch (err) {
+      console.error("Speech Error:", err);
+    }
+  };
+
+  const stopSpeaking = () => {
+    try {
+      Speech.stop();
+    } catch (err) {
+      console.error("Stop Speech Error:", err);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Diagnosis Result</Text>
+      <Text style={styles.title}>Diagnosis Report</Text>
 
       <View style={styles.infoBox}>
         {generation_datetime && (
-          <View>
+          <>
             <Text style={styles.label}>Generated On:</Text>
             <Text style={styles.value}>
               {new Date(generation_datetime).toLocaleString()}
             </Text>
-          </View>
+          </>
         )}
 
         <Text style={styles.label}>Disease:</Text>
         <Text style={styles.value}>{disease || "N/A"}</Text>
 
-        {symptoms && symptoms.length > 0 && (
+        {symptoms?.length > 0 && (
           <View>
             <Text style={styles.label}>Symptoms:</Text>
             {symptoms.map((item, index) => (
@@ -84,7 +115,7 @@ const OutputPage = () => {
           </View>
         )}
 
-        {causes && causes.length > 0 && (
+        {causes?.length > 0 && (
           <View>
             <Text style={styles.label}>Causes:</Text>
             {causes.map((item, index) => (
@@ -95,10 +126,11 @@ const OutputPage = () => {
           </View>
         )}
 
-        {treatment && (treatment.organic || treatment.non_organic) ? (
+        {(treatment?.organic?.length || treatment?.non_organic?.length) ? (
           <View>
             <Text style={styles.label}>Treatment:</Text>
-            {treatment.organic && treatment.organic.length > 0 && (
+
+            {treatment.organic?.length > 0 && (
               <View style={styles.subSection}>
                 <Text style={styles.subLabel}>Organic:</Text>
                 {treatment.organic.map((item, index) => (
@@ -108,7 +140,8 @@ const OutputPage = () => {
                 ))}
               </View>
             )}
-            {treatment.non_organic && treatment.non_organic.length > 0 && (
+
+            {treatment.non_organic?.length > 0 && (
               <View style={styles.subSection}>
                 <Text style={styles.subLabel}>Non-Organic:</Text>
                 {treatment.non_organic.map((item, index) => (
@@ -118,10 +151,6 @@ const OutputPage = () => {
                 ))}
               </View>
             )}
-            {!treatment.organic?.length &&
-              !treatment.non_organic?.length && (
-                <Text style={styles.value}>N/A</Text>
-              )}
           </View>
         ) : (
           <View>
@@ -130,7 +159,7 @@ const OutputPage = () => {
           </View>
         )}
 
-        {prevention && prevention.length > 0 && (
+        {prevention?.length > 0 && (
           <View>
             <Text style={styles.label}>Prevention:</Text>
             {prevention.map((item, index) => (
@@ -141,30 +170,30 @@ const OutputPage = () => {
           </View>
         )}
 
-        {parsedResult.advice && (
+        {advice && (
           <View>
             <Text style={styles.label}>Additional Advice:</Text>
-            <Text style={styles.value}>{parsedResult.advice}</Text>
+            <Text style={styles.value}>{advice}</Text>
           </View>
         )}
 
         {!disease &&
-          (!symptoms || symptoms.length === 0) &&
-          (!causes || causes.length === 0) &&
-          (!treatment ||
-            (!treatment.organic?.length &&
-              !treatment.non_organic?.length)) &&
-          (!prevention || prevention.length === 0) &&
-          !parsedResult.advice && (
+          !symptoms?.length &&
+          !causes?.length &&
+          !treatment?.organic?.length &&
+          !treatment?.non_organic?.length &&
+          !prevention?.length &&
+          !advice && (
             <Text style={styles.noDataText}>
               No detailed diagnosis data available.
             </Text>
           )}
       </View>
 
-      {/* Download Button */}
-      <View style={{ marginTop: 20, width: "100%" }}>
-        <Button title="Download Report" onPress={handleDownloadReport} />
+      <View style={styles.buttonGroup}>
+        <Button title="🔊 Read Aloud" onPress={speakReport} />
+        <Button title="⏸ Pause" onPress={stopSpeaking} />
+        <Button title="⬇ Download Report" onPress={handleDownloadReport} />
       </View>
     </ScrollView>
   );
@@ -218,5 +247,10 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginTop: 20,
+  },
+  buttonGroup: {
+    marginTop: 30,
+    width: "100%",
+    gap: 12,
   },
 });

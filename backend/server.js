@@ -81,13 +81,15 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         const formData = new FormData();
         formData.append("image", fs.createReadStream(imagePath));
+        console.log("ImagePath: ", imagePath)
+        console.log("formData: ", formData)
 
 
         
         //Try-catch block to handle errors while calling the disease prediction API
         let diseaseResponse;
         try {
-            diseaseResponse = await axios.post("http://127.0.0.1:5000/disease", formData, {
+            diseaseResponse = await axios.post("http://localhost:5000/disease", formData, {
                 headers: formData.getHeaders(),
             });
         } catch (error) {
@@ -249,6 +251,52 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+
+app.post('/test', upload.single('image'), (req, res) => {
+
+    console.log(req.file)
+    console.log(req.body)
+    const report = {
+        "disease": "Tomato Late Blight",
+        "description": "A fungal disease causing large, greasy-looking spots on tomato leaves and stems.",
+        "symptoms": [
+            "Large, greasy-looking spots on leaves and stems",
+            "Yellowing of leaves",
+            "Premature defoliation"
+        ],
+        "causes": [
+            "Water splashing on plants",
+            "High humidity",
+            "Infected seeds or transplants"
+        ],
+        "treatment": {
+            "organic": [
+                "Copper oxychloride 3 grams per liter of water spray",
+                "Chlorothalonil 2 grams per liter of water spray"
+            ],
+            "non_organic": [
+                "Mancozeb 2 grams per liter of water spray",
+                "Chlorothalonil 2 grams per liter of water spray"
+            ]
+        },
+        "prevention": [
+            "Use disease-free seeds and transplants",
+            "Maintain good air circulation",
+            "Water plants at ground level"
+        ],
+        "note": "Due to high humidity (86.20%), fungal growth may increase. Spray treatments more frequently. Avoid spraying during peak sunlight hours to prevent crop burning."
+    }
+
+    res.status(201).json({
+        report
+    });
+
+})
+
+app.use((req, res) => {
+    res.status(400).json({error: "route not found"})
+})
+
+app.listen(3000, '0.0.0.0', () => {
     console.log("✅ Server running on http://localhost:3000");
 });
