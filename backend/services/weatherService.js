@@ -1,8 +1,5 @@
 const axios = require('axios');
 
-const latitude = 19.073736;
-const longitude = 72.870549;
-
 // Returns last 7 calendar days in YYYY‑MM‑DD array (excluding today)
 function getLastSevenDays() {
   const days = [];
@@ -14,7 +11,10 @@ function getLastSevenDays() {
   return days.reverse();
 }
 
-async function fetchWeeklyWeatherData() {
+async function fetchWeeklyWeatherData(latitude, longitude) {
+
+  console.log("latitude received: ", latitude)
+  console.log("Longitude received: ", longitude)
 
   console.log('Fetching weekly weather data...');
 

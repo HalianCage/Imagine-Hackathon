@@ -1,0 +1,15 @@
+1) formData format for frontend to backend data passage(loading.jsx to server.js)
+
+formData = {
+
+    'image': {
+        'uri': <imageUri>,
+        'name': 'crop_image.jpg',
+        'type': 'image/jpeg'
+    },
+    'location': {
+        'latitude': <latitude coordinates>,
+        'longitude': <longitude coordinates>
+    },
+    'language': <language>
+}
