@@ -9,10 +9,6 @@ import {
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-// import axios from "axios"; // You would typically use axios or fetch
-
-import { LocationContext } from "../context/LocationContext";
-import { useContext } from "react";
 
 // Import translations and AsyncStorage
 import translations from '../translations';
@@ -20,69 +16,120 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoadingPage = () => {
   const router = useRouter();
-  const { imageUri, selectedLanguage: initialSelectedLanguage } = useLocalSearchParams();
-  const location = useContext(LocationContext);
+  const params = useLocalSearchParams();
+  
+  // Log all received parameters for debugging
+  console.log("LoadingPage - All received params:", params);
+  
+  const { imageUri, selectedLanguage: initialSelectedLanguage, location: locationString } = params;
+  
+  console.log("LoadingPage - Extracted params:");
+  console.log("- imageUri:", imageUri);
+  console.log("- selectedLanguage:", initialSelectedLanguage);
+  console.log("- location string:", locationString);
+  
+  // Parse the location back to object
+  let location = null;
+  try {
+    if (locationString && typeof locationString === 'string') {
+      location = JSON.parse(locationString);
+    }
+  } catch (error) {
+    console.error("Error parsing location:", error);
+    location = null;
+  }
 
   // Add currentLanguage state, initialized from param or default
   const [currentLanguage, setCurrentLanguage] = useState(initialSelectedLanguage || 'en');
 
   // Use state for loadingText, initialized and updated based on currentLanguage
-  const [loadingText, setLoadingText] = useState(translations[currentLanguage].loading_status_text);
+  const [loadingText, setLoadingText] = useState("Processing...");
 
   useEffect(() => {
     (async () => {
       // If a language wasn't passed, try to load from AsyncStorage
       if (!initialSelectedLanguage) {
-        const savedLang = await AsyncStorage.getItem('appLanguage');
-        if (savedLang) {
-          setCurrentLanguage(savedLang);
+        try {
+          const savedLang = await AsyncStorage.getItem('appLanguage');
+          if (savedLang) {
+            setCurrentLanguage(savedLang);
+          }
+        } catch (error) {
+          console.error("Error loading language from storage:", error);
         }
       }
     })();
-  }, [initialSelectedLanguage]); // Run once when initialSelectedLanguage changes (or component mounts)
+  }, [initialSelectedLanguage]);
 
-  // This useEffect ensures loadingText updates if currentLanguage changes after initial render
+  // Update loading text when language changes
   useEffect(() => {
-    setLoadingText(translations[currentLanguage].loading_status_text);
+    if (translations[currentLanguage]?.loading_status_text) {
+      setLoadingText(translations[currentLanguage].loading_status_text);
+    } else {
+      setLoadingText("Processing...");
+    }
   }, [currentLanguage]);
 
-
   useEffect(() => {
+    console.log("LoadingPage useEffect triggered");
+    console.log("imageUri exists:", !!imageUri);
+    console.log("imageUri type:", typeof imageUri);
+    console.log("imageUri value:", imageUri);
+    
+    // Check if imageUri exists and is not empty
+    if (!imageUri || imageUri.trim() === '' || imageUri === 'undefined') {
+      console.error("No valid image URI provided");
+      Alert.alert("Error", "No image provided for processing");
+      setTimeout(() => {
+        router.replace("/Home");
+      }, 1000);
+      return;
+    }
+
     const processImageWithBackend = async () => {
       try {
+        console.log("=== PROCESSING IMAGE WITH BACKEND ===");
+        console.log("Image URI:", imageUri);
+        console.log("Language:", currentLanguage);
+        console.log("Location:", location);
+
         // --- START OF BACKEND API CALL INTEGRATION ---
         const formData = new FormData();
+        
+        // Add image to FormData
         formData.append('image', {
           uri: imageUri,
           name: 'crop_image.jpg',
           type: 'image/jpeg',
         });
+        
+        // Add location data
         formData.append("location", JSON.stringify(location || null));
 
-        // Append the determined current language to your formData
+        // Add language
         if (currentLanguage) {
           formData.append("language", currentLanguage);
         }
 
-        // Example using fetch (you might use axios, etc.):
-        // const response = await fetch('YOUR_BACKEND_API_ENDPOINT_HERE', {
+        console.log("FormData prepared for backend call...");
+
+        // Here you would make your actual backend API call
+        // Example:
+        // const response = await fetch('YOUR_BACKEND_ENDPOINT', {
         //   method: 'POST',
         //   body: formData,
         //   headers: {
-        //     // 'Content-Type': 'multipart/form-data' might be auto-set by FormData
-        //     // Add any other headers like authorization tokens if needed
+        //     'Content-Type': 'multipart/form-data',
         //   },
         // });
-
+        // 
         // if (!response.ok) {
-        //   const errorData = await response.json();
-        //   throw new Error(errorData.message || translations[currentLanguage].loading_error_message);
+        //   throw new Error(`HTTP error! status: ${response.status}`);
         // }
-
+        // 
         // const backendResult = await response.json();
-        // console.log("Backend response:", backendResult);
 
-        // --- DUMMY RESULT FOR DEMONSTRATION (REMOVE THIS IN PRODUCTION) ---
+        // --- DUMMY RESULT FOR DEMONSTRATION ---
         const dummyResult = {
           disease: "Leaf Blight",
           symptoms: ["Yellow spots on leaves", "Brown lesions", "Reduced growth"],
@@ -93,49 +140,78 @@ const LoadingPage = () => {
           },
           prevention: ["Ensure proper spacing", "Good air circulation", "Resistant varieties"],
           generation_datetime: new Date().toISOString(),
+          processed_with: {
+            language: currentLanguage,
+            location: location,
+            image_processed: true
+          }
         };
 
-
         // Simulate network delay
+        console.log("Simulating processing delay...");
         await new Promise(resolve => setTimeout(resolve, 3000));
+        console.log("Processing complete, navigating to output...");
 
-        // --- END OF BACKEND API CALL INTEGRATION ---
-
+        // Navigate to output page
         router.replace({
           pathname: "/output",
           params: {
-            imageUri,
+            imageUri: imageUri,
             result: JSON.stringify(dummyResult),
           },
         });
 
       } catch (error) {
         console.error("Error during image processing:", error);
-        Alert.alert(translations[currentLanguage].loading_error_title, error.message || translations[currentLanguage].loading_error_message);
-        router.replace("/Home");
+        const errorTitle = translations[currentLanguage]?.loading_error_title || "Error";
+        const errorMessage = error.message || translations[currentLanguage]?.loading_error_message || "Processing failed";
+        
+        Alert.alert(errorTitle, errorMessage, [
+          {
+            text: "OK",
+            onPress: () => router.replace("/Home")
+          }
+        ]);
       }
     };
 
-    // This useEffect is responsible for initiating the backend process
+    // Start processing
     processImageWithBackend();
-    // Dependencies to re-run the process if these change (unlikely in this flow, but good practice)
-  }, [imageUri, currentLanguage, location]);
-
+    
+  }, [imageUri, currentLanguage, location, router]);
 
   return (
     <View style={styles.container}>
-      {/* Title text directly uses translation */}
-      <Text style={styles.title}>{translations[currentLanguage].loading_page_title}</Text>
-      <View style={styles.previewContainer}>
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </View>
-      {/* Status text now uses the loadingText state, which is dynamically updated */}
+      <Text style={styles.title}>
+        {translations[currentLanguage]?.loading_page_title || "Processing Image"}
+      </Text>
+      
+      {imageUri && imageUri !== 'undefined' && (
+        <View style={styles.previewContainer}>
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.image}
+            resizeMode="cover"
+            onError={(error) => {
+              console.error("Image loading error:", error);
+            }}
+            onLoad={() => {
+              console.log("Image loaded successfully");
+            }}
+          />
+        </View>
+      )}
+      
       <Text style={styles.statusText}>{loadingText}</Text>
       <ActivityIndicator size="large" color="#4d4d4d" style={{ marginTop: 20 }} />
+      
+      {/* Debug info - remove in production */}
+      <View style={styles.debugContainer}>
+        <Text style={styles.debugText}>Debug Info:</Text>
+        <Text style={styles.debugText}>ImageURI: {imageUri ? 'Present' : 'Missing'}</Text>
+        <Text style={styles.debugText}>Language: {currentLanguage}</Text>
+        <Text style={styles.debugText}>Location: {location ? 'Present' : 'Missing'}</Text>
+      </View>
     </View>
   );
 };
@@ -155,6 +231,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1D1D1D",
     marginBottom: 20,
+    textAlign: "center",
   },
   previewContainer: {
     width: 180,
@@ -164,15 +241,30 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#9fbfac",
     backgroundColor: "#d1f7d6",
+    marginBottom: 20,
   },
   image: {
     width: "100%",
     height: "100%",
   },
   statusText: {
-    marginTop: 20,
     fontSize: 16,
     color: "#4d4d4d",
     textAlign: "center",
+    marginBottom: 10,
+  },
+  debugContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  debugText: {
+    color: 'white',
+    fontSize: 12,
+    marginBottom: 2,
   },
 });

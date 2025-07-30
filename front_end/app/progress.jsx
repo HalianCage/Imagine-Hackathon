@@ -14,7 +14,7 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router"; // Ensure this is imported if using Expo Router
 import logo from '../assets/images/logoHack.png';
 
-const progress = () => {
+const Progress = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter(); // Router hook for navigation
 
@@ -146,7 +146,7 @@ const progress = () => {
   );
 };
 
-export default progress;
+export default Progress;
 
 const styles = StyleSheet.create({
   container: {

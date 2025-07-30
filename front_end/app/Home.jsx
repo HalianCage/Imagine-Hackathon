@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -18,15 +18,19 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import logo from '../assets/images/logoHack.png';
 
-// Import translations
-import translations from '../translations'; // Adjust path if you placed it elsewhere
-import AsyncStorage from '@react-native-async-storage/async-storage'; // To save user's language preference
+// Import translations and context
+import translations from '../translations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LocationContext } from "../context/LocationContext";
 
 const Home = () => {
   const router = useRouter();
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [image, setImage] = useState(null);
-  const [currentLanguage, setCurrentLanguage] = useState('en'); // Default to English
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+  
+  // Get location from context
+  const location = useContext(LocationContext);
 
   useEffect(() => {
     (async () => {
@@ -44,57 +48,90 @@ const Home = () => {
   // Function to set language and save preference
   const setAppLanguage = async (lang) => {
     setCurrentLanguage(lang);
-    await AsyncStorage.setItem('appLanguage', lang); // Save for next app launch
+    await AsyncStorage.setItem('appLanguage', lang);
   };
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.status !== "granted") {
-      Alert.alert(translations[currentLanguage].permission_denied_gallery, translations[currentLanguage].permission_denied_gallery_message);
-      return;
-    }
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.status !== "granted") {
+        Alert.alert(translations[currentLanguage].permission_denied_gallery, translations[currentLanguage].permission_denied_gallery_message);
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: false,
-      quality: 1,
-    });
+      console.log("Starting image picker...");
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      router.push({ pathname: "/loading", params: { imageUri: uri } });
+      console.log("Image picker result:", result);
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        console.log("Selected image URI:", uri);
+        console.log("Current language:", currentLanguage);
+        console.log("Location:", location);
+        
+        // Use router.push with href format for Expo Router
+        router.push({
+          pathname: "/loading",
+          params: {
+            imageUri: uri,
+            selectedLanguage: currentLanguage,
+            location: JSON.stringify(location || {})
+          }
+        });
+      } else {
+        console.log("Image selection was canceled or failed");
+        Alert.alert("Info", "Image selection was canceled");
+      }
+    } catch (error) {
+      console.error("Error in pickImage:", error);
+      Alert.alert("Error", "Failed to pick image: " + error.message);
     }
   };
 
   const pickCameraImage = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    if (permissionResult.status !== "granted") {
-      Alert.alert(translations[currentLanguage].permission_denied_camera, translations[currentLanguage].permission_denied_camera_message);
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: false,
-      quality: 1,
-    });
-
-    console.log("Camera result:", result);
-
-    if (!result.canceled) {
-      let uri;
-
-      if (result.assets && result.assets.length > 0) {
-        uri = result.assets[0].uri;
-      } else if (result.uri) {
-        uri = result.uri;
+    try {
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      if (permissionResult.status !== "granted") {
+        Alert.alert(translations[currentLanguage].permission_denied_camera, translations[currentLanguage].permission_denied_camera_message);
+        return;
       }
 
-      console.log("Camera image URI:", uri);
+      console.log("Starting camera...");
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
 
-      if (uri) {
-        router.push({ pathname: "/loading", params: { imageUri: uri, selectedLanguage: currentLanguage } });
+      console.log("Camera result:", result);
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        console.log("Camera image URI:", uri);
+        console.log("Current language:", currentLanguage);
+        console.log("Location:", location);
+        
+        // Use router.push with href format for Expo Router
+        router.push({
+          pathname: "/loading",
+          params: {
+            imageUri: uri,
+            selectedLanguage: currentLanguage,
+            location: JSON.stringify(location || {})
+          }
+        });
       } else {
-        Alert.alert(translations[currentLanguage].error_retrieving_photo, translations[currentLanguage].error_retrieving_photo_message);
+        console.log("Camera capture was canceled or failed");
+        Alert.alert("Info", "Camera capture was canceled");
       }
+    } catch (error) {
+      console.error("Error in pickCameraImage:", error);
+      Alert.alert("Error", "Failed to capture image: " + error.message);
     }
   };
 
@@ -131,7 +168,6 @@ const Home = () => {
           <Text style={styles.langButtonText}>मराठी</Text>
         </Pressable>
       </View>
-
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
 
