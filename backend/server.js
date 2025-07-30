@@ -5,9 +5,11 @@ const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
 const FormData = require("form-data");
+const pool = require('./config/db')
 
 const { fetchWeeklyWeatherData } = require("./services/weatherService");
 const { generateDiseaseReport} = require("./services/groqService");
+const { loadEnvFile, report } = require("process");
 // const cropService = require("./services/cropService");
 
 const app = express();
@@ -39,11 +41,41 @@ app.get("/", (req, res) => {
 app.post("/api/crop/save", upload.single("image"), async (req, res) => {
     try {
 
+        //variable to store the request row ID in the database
+        let id;
 
+        //test user ID. In prod, we will user_id from frontend, and would be having user login registration with user sessions
+        const user_id = 1
+
+         //variable to store weather data
+        let data;
+
+        //variable to store the report
+        let report;
+
+        //getting the language and location data from the request body
+        const language = req.body.language
+        const location = JSON.parse(req.body.location)
+        console.log('checking the passed language and location values\n')
+        console.log(language)
+        console.log(location)
+
+
+
+        //if block to check if language parameter has been passed or to default to english
+        if(!language) {
+
+            console.log("no language received, defaulting to English")
+            language = 'English'
+        }
+        
+
+        //check if image has been passed or not
         if (!req.file) {
             return res.status(400).json({ message: "No image file uploaded" });
         }
 
+        
         const imagePath = path.join(__dirname, "uploads", req.file.filename);
         console.log("Image path:", imagePath);
 
@@ -74,22 +106,66 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         //debugging line to check the disease name
         console.log("Predicted Disease:", diseaseName);
+
+
+        //creating database client
+        const client = await pool.connect()
+        
+
+        //pushing predicted disease to the database
+        try {
+            
+            await client.query("BEGIN")
+
+            const formsQueryResult = await client.query(`INSERT INTO record_table(user_id, disease_name) VALUES ($1, $2) RETURNING id`, [user_id, diseaseName])
+
+            id = formsQueryResult.rows[0].id
+
+            await client.query("COMMIT")
+
+            console.log('disease name insert wuery successful. returned row id: ', id)
+
+
+        } catch (error) {
+            
+            console.log("Some error occured while inserting disease name. Please again", error)
+            await client.query("ROLLBACK")
+            return res.status(500).json({ message: "Some error occured while saving the data. Please try again" });
+        }
         
 
 
-        //variable to store weather data
-        let data;
 
-        const language = 'Hindi'
+        //if-else block to fetch weather data only if location has been passed
+        if(!location) {
 
+            console.log("No location has been passed from frontend to backend")
+            
+        }
+        else {
+            data = await fetchWeeklyWeatherData(location.latitude, location.longitude)
 
-        //capturing the weather data sent from the API fetch. Could be an empty object if location access is not given
-        try {
-            data = await fetchWeeklyWeatherData()
+            
+            console.log("Pushing weather data to the database")
 
-        } catch (error) {
+            
+            //pushing the weather data to the database row of same id
+            try {
+                
+                await client.query("BEGIN")
 
-            console.error("Error fetching weather data:", error);
+                const formsQueryResult = await client.query(`UPDATE record_table SET avgWeeklyTemp = $1, avgWeeklyHumidity = $2, avgWeeklySunlight = $3 WHERE id = $4`, [parseInt(data.avgTemp), parseInt(data.avgHumidity), parseInt(data.avgSunlight), id])
+
+                await client.query("COMMIT")
+
+                console.log('successfully stored the weather values to the database')
+
+            } catch (error) {
+                
+                console.log("Some error occured while inserting weather data. Please try again", error)
+                await client.query("ROLLBACK")
+                return res.status(500).json({ message: "Some error occured while saving the data. Please try again" });
+            }
         }
 
 
@@ -101,12 +177,13 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
                 console.log("No weather data available, generating general report...");
 
                 //function to get the disease report
-                const report = await generateDiseaseReport(diseaseName, language);
+                report = await generateDiseaseReport(diseaseName, language);
                 console.log(report)
 
             }
             catch(e) {
-                console.log("Some error occured while fetching disease report", e)
+                console.log("Some error occured while generating disease report", e)
+                return res.status(500).json({ message: "Could not generate report. Please try again", error: error.message });
             }
 
         }
@@ -123,28 +200,38 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
                 console.log("Weather data available, generating report with weather data...");
 
                 //function to get the disease report
-                const report = await generateDiseaseReport(diseaseName, weatherData, language)
+                report = await generateDiseaseReport(diseaseName, weatherData, language)
                 console.log(report)
 
             }
             catch(e) {
-                console.log('Somme error occured while getting disease report', e)
+                console.log('Somme error occured while getting disease report using the weather data.', e)
+                return res.status(500).json({ message: "Could not generate report using the weather data. Please try again", error: error.message });
             }
 
         }
 
 
+        //pushing the generated report to the database
+        try {
+                
+                await client.query("BEGIN")
+
+                const formsQueryResult = await client.query(`UPDATE record_table SET language = $1, report = $2 WHERE id = $3`, [language, report, id])
 
 
-        //!!!!Edit this to the current variables
-        // const savedData = await cropService.saveCropData(
-        //     user_id,
-        //     avgSunlight,
-        //     avgTemp,
-        //     avgHumidity,
-        //     predictedDisease,
-        //     jsonReport
-        // );
+                console.log('report & language data push : \n', formsQueryResult)
+
+                await client.query("COMMIT")
+
+                console.log('successfully stored the languages and report to the database')
+
+            } catch (error) {
+                
+                console.log("Some error occured while inserting language and report. Please again", error)
+                await client.query("ROLLBACK")
+                return res.status(500).json({ message: "Some error occured while saving the data. Please try again" });
+            }
 
 
 
