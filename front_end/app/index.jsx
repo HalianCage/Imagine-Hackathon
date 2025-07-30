@@ -12,13 +12,12 @@ import {
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from 'expo-file-system';
 import logo from '../assets/images/logoHack.png';
 
-// Import translations and context
 import translations from '../translations';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocationContext } from "../context/LocationContext";
@@ -29,39 +28,51 @@ const Home = () => {
   const [image, setImage] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   
-  // Get location from context
   const location = useContext(LocationContext);
 
   useEffect(() => {
     (async () => {
-      // Load saved language preference
       const savedLang = await AsyncStorage.getItem('appLanguage');
       if (savedLang) {
         setCurrentLanguage(savedLang);
       }
-      // Request gallery permission
       const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setHasGalleryPermission(galleryStatus.status === "granted");
+
+      const imageDir = FileSystem.documentDirectory + 'images/';
+      const dirInfo = await FileSystem.getInfoAsync(imageDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(imageDir, { intermediates: true });
+      }
     })();
   }, []);
 
-  // Function to set language and save preference
+  useEffect(() => {
+    if (image) {
+      router.push({
+        pathname: "/loading",
+        params: {
+          imageUri: image,
+          selectedLanguage: currentLanguage,
+          location: JSON.stringify(location || {})
+        }
+      });
+      setImage(null);
+    }
+  }, [image]);
+
   const setAppLanguage = async (lang) => {
     setCurrentLanguage(lang);
     await AsyncStorage.setItem('appLanguage', lang);
   };
 
-  const pickImage = async () => {
+  const handleImagePick = async (pickerFunction) => {
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (permissionResult.status !== "granted") {
-        Alert.alert(translations[currentLanguage].permission_denied_gallery, translations[currentLanguage].permission_denied_gallery_message);
-        return;
-      }
-
-      console.log("Starting image picker...");
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      const result = await pickerFunction({
+        // FIX: Reverted to using a string literal for mediaTypes.
+        // This is more compatible across different expo-image-picker versions
+        // and should prevent the 'cannot read property' crash.
+        mediaTypes: 'Images',
         allowsEditing: false,
         quality: 1,
       });
@@ -69,23 +80,24 @@ const Home = () => {
       console.log("Image picker result:", result);
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        const uri = result.assets[0].uri;
-        console.log("Selected image URI:", uri);
-        console.log("Current language:", currentLanguage);
-        console.log("Location:", location);
+        const tempUri = result.assets[0].uri;
+        const filename = tempUri.split('/').pop();
+        const newUri = FileSystem.documentDirectory + 'images/' + filename;
         
-        // Use router.push with href format for Expo Router
-        router.push({
-          pathname: "/loading",
-          params: {
-            imageUri: uri,
-            selectedLanguage: currentLanguage,
-            location: JSON.stringify(location || {})
-          }
+        // To prevent "file already exists" error, check and delete if needed
+        const existingFile = await FileSystem.getInfoAsync(newUri);
+        if (existingFile.exists) {
+            await FileSystem.deleteAsync(newUri);
+        }
+
+        await FileSystem.moveAsync({
+          from: tempUri,
+          to: newUri,
         });
+        console.log("Saved image to permanent URI:", newUri);
+        setImage(newUri);
       } else {
         console.log("Image selection was canceled or failed");
-        Alert.alert("Info", "Image selection was canceled");
       }
     } catch (error) {
       console.error("Error in pickImage:", error);
@@ -93,46 +105,24 @@ const Home = () => {
     }
   };
 
-  const pickCameraImage = async () => {
-    try {
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      if (permissionResult.status !== "granted") {
-        Alert.alert(translations[currentLanguage].permission_denied_camera, translations[currentLanguage].permission_denied_camera_message);
-        return;
-      }
-
-      console.log("Starting camera...");
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
-      });
-
-      console.log("Camera result:", result);
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const uri = result.assets[0].uri;
-        console.log("Camera image URI:", uri);
-        console.log("Current language:", currentLanguage);
-        console.log("Location:", location);
-        
-        // Use router.push with href format for Expo Router
-        router.push({
-          pathname: "/loading",
-          params: {
-            imageUri: uri,
-            selectedLanguage: currentLanguage,
-            location: JSON.stringify(location || {})
-          }
-        });
-      } else {
-        console.log("Camera capture was canceled or failed");
-        Alert.alert("Info", "Camera capture was canceled");
-      }
-    } catch (error) {
-      console.error("Error in pickCameraImage:", error);
-      Alert.alert("Error", "Failed to capture image: " + error.message);
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.status !== "granted") {
+      Alert.alert(translations[currentLanguage].permission_denied_gallery, translations[currentLanguage].permission_denied_gallery_message);
+      return;
     }
+    console.log("Starting gallery picker...");
+    await handleImagePick(ImagePicker.launchImageLibraryAsync);
+  };
+
+  const pickCameraImage = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.status !== "granted") {
+      Alert.alert(translations[currentLanguage].permission_denied_camera, translations[currentLanguage].permission_denied_camera_message);
+      return;
+    }
+    console.log("Starting camera...");
+    await handleImagePick(ImagePicker.launchCameraAsync);
   };
 
   return (
@@ -156,7 +146,6 @@ const Home = () => {
         </View>
       </SafeAreaView>
 
-      {/* Language Selection Buttons */}
       <View style={styles.languageSelector}>
         <Pressable onPress={() => setAppLanguage('en')} style={[styles.langButton, currentLanguage === 'en' && styles.activeLangButton]}>
           <Text style={styles.langButtonText}>English</Text>
@@ -170,7 +159,6 @@ const Home = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-
         <View style={styles.uploadSection}>
           <Text style={styles.sectionTitle}>{translations[currentLanguage].upload_section_title}</Text>
           <Text style={styles.sectionSubtitle}>{translations[currentLanguage].upload_section_subtitle}</Text>
@@ -214,7 +202,7 @@ const Home = () => {
           </View>
         </View>
 
-         <View style={styles.introContainer}>
+        <View style={styles.introContainer}>
           <Text style={styles.introTitle}>{translations[currentLanguage].intro_title}</Text>
           <Text style={styles.introText}>
             {translations[currentLanguage].intro_text}

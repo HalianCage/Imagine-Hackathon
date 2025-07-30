@@ -81,7 +81,7 @@ const LoadingPage = () => {
       console.error("No valid image URI provided");
       Alert.alert("Error", "No image provided for processing");
       setTimeout(() => {
-        router.replace("/Home");
+        router.replace("/");
       }, 1000);
       return;
     }
@@ -169,7 +169,7 @@ const LoadingPage = () => {
         Alert.alert(errorTitle, errorMessage, [
           {
             text: "OK",
-            onPress: () => router.replace("/Home")
+            onPress: () => router.replace("/")
           }
         ]);
       }
