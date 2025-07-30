@@ -1,0 +1,8 @@
+PORT = 
+pguser = postgres
+pghost = localhost
+pgdatabase = progress_tracker
+pgpassword = 
+pgport = 
+
+groq_api_key = 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    

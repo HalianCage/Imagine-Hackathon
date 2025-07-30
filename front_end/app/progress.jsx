@@ -1,147 +1,80 @@
 // progress.jsx
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
   TouchableOpacity,
   Image,
-  Modal,
-  SafeAreaView,
-  Pressable,
 } from "react-native";
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router"; // Ensure this is imported if using Expo Router
-import logo from '../assets/images/logoHack.png';
+import { useRouter } from "expo-router";
 
 const Progress = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const router = useRouter(); // Router hook for navigation
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const handleAddButtonPress = () => {
-    setModalVisible(true);
+  const fetchReports = async () => {
+
+    console.log("inside fetchReports function")
+    try {
+      const response = await fetch("http://192.168.1.2:3000/getReports"); // Replace with your actual backend URL
+      const data = await response.json();
+      setReports(data.array.reverse()); // Show latest first
+
+      console.log('Data.array: \n',data.array)
+
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleOptionPress = (option) => {
-    console.log(option);
-    setModalVisible(false);
-    if (option === "Weekly") {
-      router.push("/uploads"); // Navigates to form.jsx
-    }
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const handleTilePress = (reportId) => {
+    router.push(`/report/${reportId}`);
   };
 
   return (
     <View style={styles.container}>
-      {/* Updated Header */}
-      <SafeAreaView style={styles.header}>
-        <View style={styles.header_box}>
-          <Image
-            source={logo}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Pressable onPress={() => console.log("Navigate to profile")}>
-            <FontAwesome5 name="user-alt" size={45} color="white" />
-          </Pressable>
-        </View>
-      </SafeAreaView>
-
-      {/* Title */}
-      <Text style={styles.title}>Progress Tracking</Text>
-
-      {/* Buttons with Logos */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/CornPage")} // Navigate to corn.jsx
-        >
-          <Image
-            source={{ uri: "https://img.icons8.com/color/48/000000/corn.png" }}
-            style={styles.icon}
-          />
-          <Text style={styles.buttonText}>Corn</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/cotton")} // Navigate to cotton.jsx
-        >
-          <Image
-            source={{ uri: "https://img.icons8.com/color/48/000000/cotton.png" }}
-            style={styles.icon}
-          />
-          <Text style={styles.buttonText}>Cotton</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/wheat")} // Navigate to wheat.jsx
-        >
-          <Image
-            source={{ uri: "https://img.icons8.com/color/48/000000/wheat.png" }}
-            style={styles.icon}
-          />
-          <Text style={styles.buttonText}>Wheat</Text>
-        </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>📈 Progress Tracker</Text>
       </View>
 
-      {/* Add Button */}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
-        <FontAwesome name="plus" size={24} color="black" />
-      </TouchableOpacity>
-
-      {/* Modal for Popup */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalHeading}>Schedule</Text>
-
+      {loading ? (
+        <ActivityIndicator size="large" color="#679267" style={{ marginTop: 50 }} />
+      ) : reports.length === 0 ? (
+        <Text style={styles.noReports}>No reports found. Please upload your first diagnosis.</Text>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {reports.map((report, index) => (
             <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => router.push("uploads")}
+              key={report.id || index}
+              style={styles.tile}
+              onPress={() => handleTilePress(report.id)}
             >
-              <FontAwesome
-                name="calendar"
-                size={20}
-                color="black"
-                style={styles.optionIcon}
+              <View style={styles.tileLeft}>
+                <Text style={styles.disease}>{report.disease_name || "Pending Diagnosis"}</Text>
+                <Text style={styles.timestamp}>
+                  {new Date(report.time_stamp).toLocaleString()}
+                </Text>
+              </View>
+              <Image
+                source={{ uri: report.imageUri }}
+                style={styles.thumbnail}
+                resizeMode="cover"
               />
-              <Text style={styles.optionText}>Weekly</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleOptionPress("Biweekly")}
-            >
-              <FontAwesome
-                name="calendar-check-o"
-                size={20}
-                color="black"
-                style={styles.optionIcon}
-              />
-              <Text style={styles.optionText}>Biweekly</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleOptionPress("Monthly")}
-            >
-              <FontAwesome
-                name="calendar-o"
-                size={20}
-                color="black"
-                style={styles.optionIcon}
-              />
-              <Text style={styles.optionText}>Monthly</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -151,102 +84,59 @@ export default Progress;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f7e6",
-    padding: 3,
+    backgroundColor: "#f3f9f3",
+    paddingTop: 40,
   },
   header: {
-    backgroundColor: "#9fbfac",
-    padding: 5,
-    marginBottom: 15,
-  },
-  header_box: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  logo: {
-    width: 100,
-    height: 85,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#333",
-  },
-  buttonContainer: {
-    marginBottom: 30,
-  },
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#b3d9b3",
-    paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 10,
-    marginVertical: 10,
+    marginBottom: 10,
   },
-  icon: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
+  headerText: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#2f4f2f",
   },
-  buttonText: {
-    fontSize: 16,
-    color: "#333",
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 80,
   },
-  addButton: {
-    position: "absolute",
-    bottom: 30,
-    right: 30,
+  tile: {
+    flexDirection: "row",
+    backgroundColor: "#e0f0dc",
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#ccc",
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  tileLeft: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  disease: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#405c3d",
+  },
+  timestamp: {
+    fontSize: 13,
+    color: "#777",
+    marginTop: 4,
+  },
+  thumbnail: {
     width: 60,
     height: 60,
-    backgroundColor: "#b3d9b3",
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    marginBottom: 100,
-    marginRight: 20,
-  },
-  modalContainer: {
-    backgroundColor: "white",
-    width: 150,
     borderRadius: 10,
-    padding: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    backgroundColor: "#d0e0d0",
   },
-  modalHeading: {
+  noReports: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
+    color: "#666",
     textAlign: "center",
-  },
-  optionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  optionIcon: {
-    marginRight: 10,
-  },
-  optionText: {
-    fontSize: 16,
-    color: "#333",
+    marginTop: 50,
   },
 });

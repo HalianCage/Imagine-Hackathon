@@ -115,7 +115,7 @@ const LoadingPage = () => {
 
         // backend API
         try {
-          const response = await fetch('http://10.255.30.84:3000/api/crop/save', {
+          const response = await fetch('http://192.168.1.2:3000/api/crop/save', {
             method: 'POST',
             body: formData,
             headers: {
@@ -170,10 +170,6 @@ const LoadingPage = () => {
         //   }
         // };
 
-        // Simulate network delay
-        // console.log("Simulating processing delay...");
-        // await new Promise(resolve => setTimeout(resolve, 3000));
-        // console.log("Processing complete, navigating to output...");
 
         // Navigate to output page
         router.replace({

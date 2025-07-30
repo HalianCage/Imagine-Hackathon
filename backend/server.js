@@ -252,46 +252,37 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 });
 
 
-app.post('/test', upload.single('image'), (req, res) => {
+//api to send all past reports to the frontend for history/progress tracking
+app.get('/getReports', async (req, res) => {
 
-    console.log(req.file)
-    console.log(req.body)
-    const report = {
-        "disease": "Tomato Late Blight",
-        "description": "A fungal disease causing large, greasy-looking spots on tomato leaves and stems.",
-        "symptoms": [
-            "Large, greasy-looking spots on leaves and stems",
-            "Yellowing of leaves",
-            "Premature defoliation"
-        ],
-        "causes": [
-            "Water splashing on plants",
-            "High humidity",
-            "Infected seeds or transplants"
-        ],
-        "treatment": {
-            "organic": [
-                "Copper oxychloride 3 grams per liter of water spray",
-                "Chlorothalonil 2 grams per liter of water spray"
-            ],
-            "non_organic": [
-                "Mancozeb 2 grams per liter of water spray",
-                "Chlorothalonil 2 grams per liter of water spray"
-            ]
-        },
-        "prevention": [
-            "Use disease-free seeds and transplants",
-            "Maintain good air circulation",
-            "Water plants at ground level"
-        ],
-        "note": "Due to high humidity (86.20%), fungal growth may increase. Spray treatments more frequently. Avoid spraying during peak sunlight hours to prevent crop burning."
+    console.log("inside the /getReports api")
+
+    const client = await pool.connect()
+
+    try {
+        
+        const queryResult = await client.query(`SELECT id, image_uri, disease_name, time_stamp FROM record_table`)
+
+        console.log('successfully completed get query:\n')
+
+        const reportArray = {"array": queryResult.rows}
+
+        console.log('data setn:\n', reportArray)
+
+        client.release()
+
+        res.status(200).json(reportArray)
+
+    } catch (error) {
+        
+        console.error("Some error occured while fetching from database", error)
+
+        res.status(500).json({error: "Unable to process request, please try again"})
     }
 
-    res.status(201).json({
-        report
-    });
 
 })
+
 
 app.use((req, res) => {
     res.status(400).json({error: "route not found"})
