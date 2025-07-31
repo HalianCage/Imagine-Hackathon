@@ -50,6 +50,12 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
         //test user ID. In prod, we will user_id from frontend, and would be having user login registration with user sessions
         const user_id = 1
 
+        //variable to store the disease name api response
+        let diseaseResponse;
+
+        //variable to store the disease spread api response
+        let spreadResponse;
+
          //variable to store weather data
         let data;
 
@@ -112,17 +118,19 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         }
 
-
-        const formData = new FormData();
-        formData.append("image", fs.createReadStream(imagePathDisease));
         // console.log("ImagePath: ", imagePathDisease)
         // console.log("formData: ", formData)
 
 
         
         //Try-catch block to handle errors while calling the disease prediction API
-        let diseaseResponse;
         try {
+
+            //image path to send to the disease name prediction model
+            const formData = new FormData();
+            formData.append("image", fs.createReadStream(imagePathDisease));
+
+
             diseaseResponse = await axios.post("http://localhost:5000/disease", formData, {
                 headers: formData.getHeaders(),
             });
@@ -164,6 +172,37 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
         }
         
 
+
+        //Try-catch block to handle errors while calling the spread percentage flask API
+        try {
+
+            console.log('inside disease spread try catch')
+
+            //image path to send to the disease name prediction model
+            const formData = new FormData();
+            formData.append("image", fs.createReadStream(imagePathDisease));
+
+            spreadResponse = await axios.post("http://localhost:5001/spreadPercent", formData, {
+                headers: formData.getHeaders(),
+            });
+
+            console.log(spreadResponse)
+            
+        } catch (error) {
+            console.error("Error calling disease spread API:", error.message);
+            
+        }
+
+        // Check if the response contains the expected data
+        if (!spreadResponse) {
+            console.log('invalid data sent from disease spread model');
+        }
+
+        //variable to store the disease name
+        const diseaseSpread = spreadResponse.data.prediction
+
+        //debugging line to check the disease name
+        console.log("Approximate spread of disease:", diseaseSpread);
 
 
         //if-else block to fetch weather data only if location has been passed
@@ -337,6 +376,14 @@ app.get('/getSingleReport/:id', async (req, res) => {
     }
 
     res.json({report})
+
+})
+
+
+app.get('/getProgressReports', async (req, res) => {
+
+
+
 
 })
 

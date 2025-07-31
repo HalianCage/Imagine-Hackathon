@@ -1,51 +1,75 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import cv2
 import numpy as np
+import os
 
-def get_disease_spread_percentage(image_path):
-    """
-    Calculates the percentage of disease spread in a plant leaf image
-    using HSV color thresholding for yellow chlorosis and brown lesions.
+app = Flask(__name__)
+CORS(app)
 
-    Args:
-        image_path (str): Path to the input image
-
-    Returns:
-        float: Disease spread percentage (0.0 - 100.0)
-    """
-
-    # Load the image
-    image = cv2.imread(image_path)
+def analyze_leaf_disease(image):
+    image = cv2.imread(image)
     if image is None:
-        raise FileNotFoundError(f"Image not found at path: {image_path}")
+        raise ValueError("Image not found or invalid format")
 
-    # Convert to HSV color space
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    # Define color thresholds
+    # Leaf segmentation
+    lower_green = np.array([25, 40, 40])
+    upper_green = np.array([90, 255, 255])
+    leaf_mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    kernel = np.ones((5, 5), np.uint8)
+    leaf_mask = cv2.morphologyEx(leaf_mask, cv2.MORPH_CLOSE, kernel)
+    leaf_mask = cv2.morphologyEx(leaf_mask, cv2.MORPH_OPEN, kernel)
+
+    # Yellow regions
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([35, 255, 255])
-
-    lower_brown = np.array([5, 50, 20])
-    upper_brown = np.array([15, 255, 200])
-
-    # Create masks for yellow and brown diseased areas
     yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+
+    # Brown regions
+    lower_brown = np.array([10, 50, 20])
+    upper_brown = np.array([20, 255, 200])
     brown_mask = cv2.inRange(hsv, lower_brown, upper_brown)
-    disease_mask = cv2.bitwise_or(yellow_mask, brown_mask)
 
-    # Optional: clean up mask using morphological operations
-    kernel = np.ones((5, 5), np.uint8)
-    disease_mask = cv2.morphologyEx(disease_mask, cv2.MORPH_CLOSE, kernel)
-    disease_mask = cv2.morphologyEx(disease_mask, cv2.MORPH_OPEN, kernel)
+    # Black regions
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, black_mask = cv2.threshold(gray, 40, 255, cv2.THRESH_BINARY_INV)
 
-    # Count pixels
-    diseased_pixels = cv2.countNonZero(disease_mask)
-    total_pixels = image.shape[0] * image.shape[1]
+    # Combine masks
+    combined_disease_mask = cv2.bitwise_or(yellow_mask, brown_mask)
+    combined_disease_mask = cv2.bitwise_or(combined_disease_mask, black_mask)
 
-    # Avoid division by zero
-    if total_pixels == 0:
-        return 0.0
+    disease_in_leaf = cv2.bitwise_and(combined_disease_mask, combined_disease_mask, mask=leaf_mask)
 
-    # Calculate spread percentage
-    spread_percentage = (diseased_pixels / total_pixels) * 100
+    diseased_pixels = cv2.countNonZero(disease_in_leaf)
+    leaf_pixels = cv2.countNonZero(leaf_mask)
+    spread_percentage = (diseased_pixels / leaf_pixels) * 100 if leaf_pixels > 0 else 0
+
     return round(spread_percentage, 2)
+
+@app.route('/spreadPercent', methods=['POST'])
+def analyze():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+
+    image_file = request.files['image']
+    if image_file.filename == '':
+        return jsonify({'error': 'Empty filename'}), 400
+
+    temp_path = f'temp_{image_file.filename}'
+    image_file.save(temp_path)
+
+    try:
+        spread = analyze_leaf_disease(temp_path)
+        os.remove(temp_path)
+        return jsonify({'spread_percentage': spread})
+    except Exception as e:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)

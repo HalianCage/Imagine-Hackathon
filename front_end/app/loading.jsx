@@ -115,7 +115,7 @@ const LoadingPage = () => {
 
         // backend API
         try {
-          const response = await fetch('http://10.255.30.84:3000/api/crop/save', {
+          const response = await fetch('http://10.255.30.147:3000/api/crop/save', {
             method: 'POST',
             body: formData,
             headers: {
