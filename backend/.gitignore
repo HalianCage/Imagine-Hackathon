@@ -50,10 +50,6 @@ htmlcov/
 # mypy
 .mypy_cache/
 
-# Postgres dump files
-*.sql
-*.dump
-
 #nodeJS dependencies
 node_modules/
 
