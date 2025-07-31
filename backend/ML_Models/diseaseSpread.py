@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import cv2
 import numpy as np
 import os
 
 app = Flask(__name__)
+CORS(app)
 
-def analyze_leaf_disease(image_path):
-    image = cv2.imread(image_path)
+def analyze_leaf_disease(image):
+    image = cv2.imread(image)
     if image is None:
         raise ValueError("Image not found or invalid format")
 
@@ -68,5 +70,6 @@ def analyze():
             os.remove(temp_path)
         return jsonify({'error': str(e)}), 500
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5001, debug=True)
