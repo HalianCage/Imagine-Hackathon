@@ -213,7 +213,7 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
             
             await client.query("BEGIN")
 
-            const formsQueryResult = await client.query(`UPDATE record_table SET spreadpercent = $1 WHERE id = $2 `, [spreadPercent, id])
+            const formsQueryResult = await client.query(`UPDATE record_table SET spread_percent = $1 WHERE id = $2 `, [Number(spreadPercent), id])
 
             await client.query("COMMIT")
 
@@ -222,7 +222,7 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         } catch (error) {
             
-            console.log("Some error occured while inserting disease name. Please again", error)
+            console.log("Some error occured while inserting disease spread percentage. Please again", error)
             await client.query("ROLLBACK")
             return res.status(500).json({ message: "Some error occured while saving the data. Please try again" });
         }
@@ -354,13 +354,13 @@ app.get('/getReports', async (req, res) => {
 
     try {
         
-        const queryResult = await client.query(`SELECT id, image_uri, disease_name, time_stamp FROM record_table`)
+        const queryResult = await client.query(`SELECT id, image_uri, disease_name, time_stamp, spread_percent FROM record_table`)
 
         console.log('successfully completed get query:\n')
 
         const reportArray = {"array": queryResult.rows}
 
-        console.log('data setn:\n', reportArray)
+        // console.log('data set:\n', reportArray)
 
         client.release()
 

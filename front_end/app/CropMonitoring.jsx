@@ -30,7 +30,7 @@ const CropMonitoring = () => {
         
         // --- 1. FETCH DATA FROM BACKEND ---
         // Using the IP from your other files. Replace if needed.
-        const response = await fetch("http://10.255.30.84:3000/get-monitoring-reports");
+        const response = await fetch("http://1192.168.1.101:3000/getReports");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -38,7 +38,7 @@ const CropMonitoring = () => {
 
         // --- 2. PROCESS AND GROUP THE DATA ---
         const reportMap = new Map();
-        allReports.forEach(report => {
+        allReports.array.forEach(report => {
           const { disease_name } = report;
           if (!reportMap.has(disease_name)) {
             reportMap.set(disease_name, []);

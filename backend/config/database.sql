@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS record_table (
     user_id INT NOT NULL,  -- This can be linked to your user table if exists
     image_uri TEXT,
     disease_name VARCHAR(100),
-    spread_percent INT,
+    spread_percent FLOAT,
     avgWeeklyTemp INT,
     avgWeeklyHumidity INT,
     avgWeeklySunlight INT,
