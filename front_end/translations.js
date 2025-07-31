@@ -49,7 +49,7 @@ const translations = {
     submitted_alert_message: "Your consultancy request has been submitted.",
 
     // --- Progress.jsx translations ---
-    progress_title: "Progress Tracker",
+    report_title: "Report History",
     report_not_found: "No reports found. Please upload your first diagnosis.",
 },
   hi: {
@@ -101,7 +101,7 @@ const translations = {
     submitted_alert_message: "आपका परामर्श अनुरोध प्रस्तुत कर दिया गया है।",
 
     // --- Progress.jsx translations ---
-    progress_title: "प्रगति ट्रैकर",
+    report_title: "निदान इतिहास",
     report_not_found: "कोई रिपोर्ट नहीं मिली। कृपया अपना पहला निदान अपलोड करें.",
 },
   mr: {
@@ -154,7 +154,7 @@ const translations = {
 
 
     // --- Progress.jsx translations ---
-    progress_title: "प्रगती ट्रॅकर",
+    report_title: "निदान इतिहास",
     report_not_found: "कोणतीही अहवाल सापडले नाहीत. कृपया तुमचे पहिले निदान अपलोड करा.",
     },
 };
