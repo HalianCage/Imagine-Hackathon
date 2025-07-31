@@ -56,6 +56,9 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
         //variable to store the disease spread api response
         let spreadResponse;
 
+        //variable to store the spreadPercent
+        let spreadPercent;
+
          //variable to store weather data
         let data;
 
@@ -186,7 +189,7 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
                 headers: formData.getHeaders(),
             });
 
-            console.log(spreadResponse)
+            console.log('successfully fetched spread percentage flask')
             
         } catch (error) {
             console.error("Error calling disease spread API:", error.message);
@@ -198,11 +201,34 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
             console.log('invalid data sent from disease spread model');
         }
 
-        //variable to store the disease name
-        const diseaseSpread = spreadResponse.data.prediction
+        spreadPercent = spreadResponse.data.spread_percentage
 
         //debugging line to check the disease name
-        console.log("Approximate spread of disease:", diseaseSpread);
+        console.log("Approximate spread of disease:", spreadPercent);
+
+
+        
+        //pushing disease spread to the database
+        try {
+            
+            await client.query("BEGIN")
+
+            const formsQueryResult = await client.query(`UPDATE record_table SET spreadpercent = $1 WHERE id = $2 `, [spreadPercent, id])
+
+            await client.query("COMMIT")
+
+            console.log('disease name insert query successful')
+
+
+        } catch (error) {
+            
+            console.log("Some error occured while inserting disease name. Please again", error)
+            await client.query("ROLLBACK")
+            return res.status(500).json({ message: "Some error occured while saving the data. Please try again" });
+        }
+        
+
+
 
 
         //if-else block to fetch weather data only if location has been passed
