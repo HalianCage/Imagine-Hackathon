@@ -49,9 +49,15 @@ const translations = {
     submitted_alert_message: "Your consultancy request has been submitted.",
 
     // --- Progress.jsx translations ---
-    progress_title: "Progress Tracker",
+    report_title: "Report History",
     report_not_found: "No reports found. Please upload your first diagnosis.",
-},
+
+    // --- CropMonitoring.jsx translations ---
+    crop_monitoring_title: "Crop Monitoring",
+    monitoring_data_not_found: "No monitoring data found.",
+    report_id: "ID:",
+    severity_label: "Severity",
+  },
   hi: {
     app_title: "क्रॉपकेयर",
     app_subtitle: "स्मार्ट फसल निदान",
@@ -101,9 +107,15 @@ const translations = {
     submitted_alert_message: "आपका परामर्श अनुरोध प्रस्तुत कर दिया गया है।",
 
     // --- Progress.jsx translations ---
-    progress_title: "प्रगति ट्रैकर",
+    report_title: "निदान इतिहास",
     report_not_found: "कोई रिपोर्ट नहीं मिली। कृपया अपना पहला निदान अपलोड करें.",
-},
+    
+    // --- CropMonitoring.jsx translations ---
+    crop_monitoring_title: "फसल निगरानी",
+    monitoring_data_not_found: "कोई निगरानी डेटा नहीं मिला।",
+    report_id: "आईडी:",
+    severity_label: "गंभीरता",
+  },
   mr: {
     app_title: "क्रॉपकेअर",
     app_subtitle: "स्मार्ट पीक निदान",
@@ -152,11 +164,16 @@ const translations = {
     submitted_alert_title: "सबमिट केले",
     submitted_alert_message: "आपली सल्लामसलत विनंती सबमिट केली आहे.",
 
-
     // --- Progress.jsx translations ---
-    progress_title: "प्रगती ट्रॅकर",
+    report_title: "निदान इतिहास",
     report_not_found: "कोणतीही अहवाल सापडले नाहीत. कृपया तुमचे पहिले निदान अपलोड करा.",
-    },
+
+    // --- CropMonitoring.jsx translations ---
+    crop_monitoring_title: "पीक निरीक्षण",
+    monitoring_data_not_found: "निरीक्षण डेटा आढळला नाही.",
+    report_id: "आयडी:",
+    severity_label: "तीव्रता",
+  },
 };
 
 export default translations;

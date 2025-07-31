@@ -69,9 +69,6 @@ const Home = () => {
   const handleImagePick = async (pickerFunction) => {
     try {
       const result = await pickerFunction({
-        // FIX: Reverted to using a string literal for mediaTypes.
-        // This is more compatible across different expo-image-picker versions
-        // and should prevent the 'cannot read property' crash.
         mediaTypes: 'Images',
         allowsEditing: false,
         quality: 1,
@@ -84,7 +81,6 @@ const Home = () => {
         const filename = tempUri.split('/').pop();
         const newUri = FileSystem.documentDirectory + 'images/' + filename;
         
-        // To prevent "file already exists" error, check and delete if needed
         const existingFile = await FileSystem.getInfoAsync(newUri);
         if (existingFile.exists) {
             await FileSystem.deleteAsync(newUri);
@@ -189,11 +185,13 @@ const Home = () => {
               <Text style={styles.cardTitle}>{translations[currentLanguage].expert_consultation_card_title}</Text>
               <Text style={styles.cardSubtitle}>{translations[currentLanguage].expert_consultation_card_subtitle}</Text>
             </Pressable>
-            <Pressable style={styles.featureCard} onPress={() => console.log("Crop Monitoring")}>
+            {/* THIS IS THE MODIFIED PART */}
+            <Pressable style={styles.featureCard} onPress={() => router.push("/CropMonitoring")}>
               <MaterialIcons name="show-chart" size={30} color="#66bb6a" />
               <Text style={styles.cardTitle}>{translations[currentLanguage].crop_monitoring_card_title}</Text>
               <Text style={styles.cardSubtitle}>{translations[currentLanguage].crop_monitoring_card_subtitle}</Text>
             </Pressable>
+            {/* END OF MODIFICATION */}
             <Pressable style={styles.featureCard} onPress={() => console.log("Care Reminders")}>
               <MaterialIcons name="access-alarm" size={30} color="#66bb6a" />
               <Text style={styles.cardTitle}>{translations[currentLanguage].care_reminders_card_title}</Text>

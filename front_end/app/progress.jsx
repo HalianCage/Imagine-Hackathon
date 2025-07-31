@@ -40,7 +40,7 @@ const Progress = () => {
 
     console.log("inside fetchReports function")
     try {
-      const response = await fetch("http://172.20.10.3:3000/getReports"); // Replace with your actual backend URL
+      const response = await fetch("http://10.255.30.84:3000/getReports"); // Replace with your actual backend URL
       const data = await response.json();
       setReports(data.array.reverse()); // Show latest first
 
@@ -68,7 +68,7 @@ const Progress = () => {
     try {
 
       //api fetch to get the specific report
-      const response = await fetch(`http://192.168.1.2:3000/getSingleReport/${reportId}`, {
+      const response = await fetch(`http://10.255.30.84:3000/getSingleReport/${reportId}`, {
         method: 'GET',
       })
 
@@ -109,7 +109,7 @@ const Progress = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>{translations[currentLanguage].progress_title}</Text>
+        <Text style={styles.headerText}>{translations[currentLanguage].report_title}</Text>
       </View>
 
       {loading ? (
