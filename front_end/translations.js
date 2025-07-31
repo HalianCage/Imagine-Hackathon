@@ -47,6 +47,10 @@ const translations = {
     submit_button: "Submit",
     submitted_alert_title: "Submitted",
     submitted_alert_message: "Your consultancy request has been submitted.",
+
+    // --- Progress.jsx translations ---
+    progress_title: "Progress Tracker",
+    report_not_found: "No reports found. Please upload your first diagnosis.",
 },
   hi: {
     app_title: "क्रॉपकेयर",
@@ -95,6 +99,10 @@ const translations = {
     submit_button: "सबमिट करें",
     submitted_alert_title: "प्रस्तुत किया गया",
     submitted_alert_message: "आपका परामर्श अनुरोध प्रस्तुत कर दिया गया है।",
+
+    // --- Progress.jsx translations ---
+    progress_title: "प्रगति ट्रैकर",
+    report_not_found: "कोई रिपोर्ट नहीं मिली। कृपया अपना पहला निदान अपलोड करें.",
 },
   mr: {
     app_title: "क्रॉपकेअर",
@@ -143,6 +151,11 @@ const translations = {
     submit_button: "सबमिट करा",
     submitted_alert_title: "सबमिट केले",
     submitted_alert_message: "आपली सल्लामसलत विनंती सबमिट केली आहे.",
+
+
+    // --- Progress.jsx translations ---
+    progress_title: "प्रगती ट्रॅकर",
+    report_not_found: "कोणतीही अहवाल सापडले नाहीत. कृपया तुमचे पहिले निदान अपलोड करा.",
     },
 };
 

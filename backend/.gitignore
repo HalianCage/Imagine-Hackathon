@@ -57,3 +57,5 @@ htmlcov/
 #nodeJS dependencies
 node_modules/
 
+#image upload directory
+uploads/

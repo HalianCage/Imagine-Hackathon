@@ -8,20 +8,39 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  Image,
+
 } from "react-native";
 import { useRouter } from "expo-router";
+
+// Import translations and AsyncStorage
+import translations from '../translations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Progress = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+   const [currentLanguage, setCurrentLanguage] = useState('en'); // Default to English
+
+  useEffect(() => {
+    // Load saved language preference
+    (async () => {
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      }
+    })();
+  }, []); // Empty dependency array means this runs once on mount
+
+  const handleSubmit = () => {
+    Alert.alert(translations[currentLanguage].submitted_alert_title, translations[currentLanguage].submitted_alert_message);
+  };
 
   const fetchReports = async () => {
 
     console.log("inside fetchReports function")
     try {
-      const response = await fetch("http://192.168.1.2:3000/getReports"); // Replace with your actual backend URL
+      const response = await fetch("http://172.20.10.3:3000/getReports"); // Replace with your actual backend URL
       const data = await response.json();
       setReports(data.array.reverse()); // Show latest first
 
@@ -90,13 +109,13 @@ const Progress = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>📈 Progress Tracker</Text>
+        <Text style={styles.headerText}>{translations[currentLanguage].progress_title}</Text>
       </View>
 
       {loading ? (
         <ActivityIndicator size="large" color="#679267" style={{ marginTop: 50 }} />
       ) : reports.length === 0 ? (
-        <Text style={styles.noReports}>No reports found. Please upload your first diagnosis.</Text>
+        <Text style={styles.reportText}>{translations[currentLanguage].report_not_found}</Text>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {reports.map((report, index) => (
@@ -111,11 +130,8 @@ const Progress = () => {
                   {new Date(report.time_stamp).toLocaleString()}
                 </Text>
               </View>
-              <Image
-                source={{ uri: report.imageUri }}
-                style={styles.thumbnail}
-                resizeMode="cover"
-              />
+              <Text style={styles.reportIcon}>📄</Text>
+
             </TouchableOpacity>
           ))}
         </ScrollView>
