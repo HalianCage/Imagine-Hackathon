@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import cv2
 import numpy as np
 import os
 
 app = Flask(__name__)
-CORS(app)
 
 def analyze_leaf_disease(image):
     image = cv2.imread(image)
