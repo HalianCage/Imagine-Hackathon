@@ -31,7 +31,7 @@ const Home = () => {
   const [currentLanguage, setCurrentLanguage] = useState('en');
 
   const scaleAnim = useState(new Animated.Value(1))[0];
-  
+
   const location = useContext(LocationContext);
 
   useEffect(() => {
@@ -84,10 +84,10 @@ const Home = () => {
         const tempUri = result.assets[0].uri;
         const filename = tempUri.split('/').pop();
         const newUri = FileSystem.documentDirectory + 'images/' + filename;
-        
+
         const existingFile = await FileSystem.getInfoAsync(newUri);
         if (existingFile.exists) {
-            await FileSystem.deleteAsync(newUri);
+          await FileSystem.deleteAsync(newUri);
         }
 
         await FileSystem.moveAsync({
@@ -218,10 +218,11 @@ const Home = () => {
               <Text style={styles.cardSubtitle}>{translations[currentLanguage].crop_monitoring_card_subtitle}</Text>
             </Pressable>
             {/* END OF MODIFICATION */}
-            <Pressable style={styles.featureCard} onPress={() => console.log("Care Reminders")}>
-              <MaterialIcons name="access-alarm" size={30} color="#66bb6a" />
-              <Text style={styles.cardTitle}>{translations[currentLanguage].care_reminders_card_title}</Text>
-              <Text style={styles.cardSubtitle}>{translations[currentLanguage].care_reminders_card_subtitle}</Text>
+            {/* This is the updated card, now for "Government Schemes" */}
+            <Pressable style={styles.featureCard} onPress={() => router.push("/schemes")}>
+              <MaterialIcons name="account-balance" size={30} color="#66bb6a" />
+              <Text style={styles.cardTitle}>{translations[currentLanguage].schemes_hub_card_title}</Text>
+              <Text style={styles.cardSubtitle}>{translations[currentLanguage].schemes_hub_card_subtitle}</Text>
             </Pressable>
           </View>
         </View>
@@ -271,19 +272,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e9f6eaff',
   },
- header: {
-  backgroundColor: '#499a6cff',
-  height: 90,
-  paddingHorizontal: 20,
-  borderBottomLeftRadius: 2,
-  borderBottomRightRadius: 2,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 3,
-  elevation: 3,
-  justifyContent: 'center',
-},
+  header: {
+    backgroundColor: '#499a6cff',
+    height: 90,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    justifyContent: 'center',
+  },
   header_box: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -294,13 +295,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
   },
-   leafIcon: {
-  width: 90,
-  height: 90,
-  marginRight: 12,
-  marginLeft: -25,
-  resizeMode: 'contain',
-},
+  leafIcon: {
+    width: 90,
+    height: 90,
+    marginRight: 12,
+    marginLeft: -25,
+    resizeMode: 'contain',
+  },
 
   appTitle: {
     fontSize: 22,

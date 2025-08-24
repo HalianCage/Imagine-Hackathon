@@ -57,6 +57,18 @@ const translations = {
     monitoring_data_not_found: "No monitoring data found.",
     report_id: "ID:",
     severity_label: "Severity",
+
+    // Schemes
+    schemes_hub_card_title: "Govt. Schemes",
+    schemes_hub_card_subtitle: "Info on farmer schemes",
+    schemes_hub_title: "Government Schemes",
+    schemes_hub_not_found: "No schemes information available.",
+    scheme_details_what_is_it: "What is it?",
+    scheme_details_benefits: "Benefits",
+    scheme_details_who_can_apply: "Who can apply?",
+    scheme_details_how_to_apply: "How to apply?",
+    scheme_details_documents_needed: "Documents Needed",
+    scheme_details_official_link_button: "Visit Official Website",
   },
   hi: {
     app_title: "क्रॉपकेयर",
@@ -115,6 +127,18 @@ const translations = {
     monitoring_data_not_found: "कोई निगरानी डेटा नहीं मिला।",
     report_id: "आईडी:",
     severity_label: "गंभीरता",
+
+    // Schemes
+    schemes_hub_card_title: "सरकारी योजनाएं",
+    schemes_hub_card_subtitle: "किसान योजनाओं की जानकारी",
+    schemes_hub_title: "सरकारी योजनाएं",
+    schemes_hub_not_found: "कोई योजना जानकारी उपलब्ध नहीं है।",
+    scheme_details_what_is_it: "यह क्या है?",
+    scheme_details_benefits: "लाभ",
+    scheme_details_who_can_apply: "कौन आवेदन कर सकता है?",
+    scheme_details_how_to_apply: "आवेदन कैसे करें?",
+    scheme_details_documents_needed: "आवश्यक दस्तावेज़",
+    scheme_details_official_link_button: "आधिकारिक वेबसाइट पर जाएं",
   },
   mr: {
     app_title: "क्रॉपकेअर",
@@ -173,6 +197,18 @@ const translations = {
     monitoring_data_not_found: "निरीक्षण डेटा आढळला नाही.",
     report_id: "आयडी:",
     severity_label: "तीव्रता",
+
+    // Schemes
+    schemes_hub_card_title: "शासकीय योजना",
+    schemes_hub_card_subtitle: "शेतकरी योजनांची माहिती",
+    schemes_hub_title: "शासकीय योजना",
+    schemes_hub_not_found: "कोणतीही योजना माहिती उपलब्ध नाही.",
+    scheme_details_what_is_it: "हे काय आहे?",
+    scheme_details_benefits: "फायदे",
+    scheme_details_who_can_apply: "कोण अर्ज करू शकतो?",
+    scheme_details_how_to_apply: "अर्ज कसा करावा?",
+    scheme_details_documents_needed: "आवश्यक कागदपत्रे",
+    scheme_details_official_link_button: "अधिकृत वेबसाइटला भेट द्या",
   },
 };
 
