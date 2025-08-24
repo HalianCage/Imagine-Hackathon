@@ -22,11 +22,15 @@ import translations from '../translations';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocationContext } from "../context/LocationContext";
 
+import { Animated, Linking } from "react-native";
+
 const Home = () => {
   const router = useRouter();
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [image, setImage] = useState(null);
   const [currentLanguage, setCurrentLanguage] = useState('en');
+
+  const scaleAnim = useState(new Animated.Value(1))[0];
   
   const location = useContext(LocationContext);
 
@@ -119,6 +123,28 @@ const Home = () => {
     }
     console.log("Starting camera...");
     await handleImagePick(ImagePicker.launchCameraAsync);
+  };
+
+  // 🚨 New function to handle call
+  const handleCallKrushiMitra = () => {
+    const phoneNumber = "18001801551"; // KrushiMitra toll-free number
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  // 🚨 Animation handlers
+  const animateIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animateOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
   };
 
   return (
@@ -222,6 +248,18 @@ const Home = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* 🚨 Floating Action Button for Call */}
+      <Animated.View style={[styles.fabContainer, { transform: [{ scale: scaleAnim }] }]}>
+        <Pressable
+          onPressIn={animateIn}
+          onPressOut={animateOut}
+          onPress={handleCallKrushiMitra}
+          style={styles.fabButton}
+        >
+          <MaterialIcons name="phone-in-talk" size={28} color="white" />
+        </Pressable>
+      </Animated.View>
     </View>
   );
 };
@@ -408,5 +446,25 @@ const styles = StyleSheet.create({
   langButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+
+  fabContainer: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    elevation: 5,
+  },
+  fabButton: {
+    backgroundColor: "#499a6cff",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
 });

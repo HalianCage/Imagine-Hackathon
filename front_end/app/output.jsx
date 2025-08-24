@@ -25,6 +25,7 @@ const OutputPage = () => {
     prevention,
     generation_datetime,
     advice,
+    processed_with, // contains language info from backend
   } = parsedResult;
 
   const handleDownloadReport = async () => {
@@ -69,9 +70,12 @@ const OutputPage = () => {
       ${prevention?.length ? `Prevention methods: ${prevention.join(", ")}.` : ""}
       ${advice ? `Additional Advice: ${advice}` : ""}
     `;
+
     try {
+      // pick language from backend (default English)
+      const speakLang = processed_with?.language || "en";
       Speech.speak(spokenText, {
-        language: "en",
+        language: speakLang,
         rate: 0.9,
       });
     } catch (err) {
@@ -232,11 +236,11 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 4,
   },
-  subSection: {
+  subsection: {
     marginLeft: 15,
     marginTop: 5,
   },
-  subLabel: {
+  sublabel: {
     fontWeight: "bold",
     fontSize: 14,
     color: "#1D1D1D",
@@ -254,3 +258,4 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 });
+

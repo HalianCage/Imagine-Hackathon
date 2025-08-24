@@ -9,7 +9,7 @@ const pool = require('./config/db')
 
 const { fetchWeeklyWeatherData } = require("./services/weatherService");
 const { generateDiseaseReport} = require("./services/groqService");
-const { loadEnvFile, report } = require("process");
+const { loadEnvFile} = require("process");
 // const cropService = require("./services/cropService");
 
 const app = express();
@@ -99,6 +99,8 @@ app.post("/api/crop/save", upload.single("image"), async (req, res) => {
 
         //creating the client database connection
         const client = await pool.connect()
+
+        console.log(client)
 
         //pushing the image path to the database
         try {
