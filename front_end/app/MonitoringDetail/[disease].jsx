@@ -3,33 +3,55 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { LineChart } from "react-native-gifted-charts";
 
+// --- NEW: Helper function to determine color based on severity ---
+// This function helps us reuse the color logic for both the tiles and the chart.
+const getSeverityColor = (percentage) => {
+  if (percentage <= 20) {
+    return '#28a745'; // Green
+  } else if (percentage <= 50) {
+    return '#fd7e14'; // Orange
+  } else {
+    return '#dc3545'; // Red
+  }
+};
+// -----------------------------------------------------------------
+
 const MonitoringDetailPage = () => {
   // --- 1. RECEIVE DATA FROM THE PREVIOUS SCREEN ---
   const { disease, reports: reportsString } = useLocalSearchParams();
-  
-  // Parse the stringified reports array back into a JavaScript object
   const diseaseReports = reportsString ? JSON.parse(reportsString) : [];
 
   // --- 2. PREPARE DATA FOR THE CHART ---
-  // Sort reports chronologically for the graph
   const sortedForChart = [...diseaseReports].sort((a, b) => new Date(a.time_stamp) - new Date(b.time_stamp));
+  
+  // --- MODIFIED: The map function now adds dynamic colors for the chart ---
   const chartData = sortedForChart.map((report) => {
     const date = new Date(report.time_stamp);
+    const severityColor = getSeverityColor(report.spread_percent); // Get the color for the current report
+
     return {
-      // Use "spread_percent" from your API for the value
-      value: report.spread_percent, 
+      value: report.spread_percent,
       label: `${date.getDate()}/${date.getMonth() + 1}`,
       dataPointText: `${report.spread_percent}%`,
+      
+      // NEW: These properties will color the individual points and text on the chart
+      dataPointColor: severityColor,
+      textColor: severityColor,
     };
   });
+  // -------------------------------------------------------------------------
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.headerText}>{decodeURIComponent(disease)}</Text>
       
-      {/* Section for Individual Report Tiles */}
       <Text style={styles.sectionTitle}>Detailed Reports</Text>
-      {diseaseReports.map(report => (
+      {diseaseReports.map(report => {
+        // --- MODIFIED: Get the severity color for each tile ---
+        const severityColor = getSeverityColor(report.spread_percent);
+        // ------------------------------------------------------
+
+        return (
          <View key={report.id} style={styles.reportTile}>
             <View style={styles.tileLeft}>
                 <Text style={styles.tileId}>ID: {report.id}</Text>
@@ -38,29 +60,36 @@ const MonitoringDetailPage = () => {
                 </Text>
             </View>
             <View style={styles.tileRight}>
-                {/* Use "spread_percent" from your API for the percentage */}
-                <Text style={styles.tilePercentage}>{report.spread_percent}%</Text>
-                <Text style={styles.tileSeverity}>Severity</Text>
+                {/* --- MODIFIED: Apply the dynamic color to the percentage and severity text --- */}
+                <Text style={[styles.tilePercentage, { color: severityColor }]}>
+                    {report.spread_percent}%
+                </Text>
+                <Text style={[styles.tileSeverity, { color: severityColor }]}>
+                    Severity
+                </Text>
+                {/* ----------------------------------------------------------------------------- */}
             </View>
          </View>
-      ))}
+        );
+      })}
 
-      {/* Section for the Graph */}
       <Text style={styles.sectionTitle}>Curation Progress</Text>
       <View style={styles.chartContainer}>
         {chartData.length > 1 ? (
           <LineChart
             data={chartData}
             height={250}
-            color="#007BFF"
+            // --- MODIFIED: Using a neutral color for the line itself ---
+            color="#6c757d" // A neutral gray for the line
             thickness={3}
-            startFillColor="rgba(0, 123, 255, 0.1)"
-            endFillColor="rgba(0, 123, 255, 0.01)"
+            startFillColor="rgba(108, 117, 125, 0.1)"
+            endFillColor="rgba(108, 117, 125, 0.01)"
+            // ---------------------------------------------------------
             dataPointsShape="circular"
-            dataPointsColor="#007BFF"
+            // dataPointsColor is no longer needed as each point has its own color
             textShiftY={-10}
             textShiftX={-5}
-            textColor="black"
+            // textColor is also no longer needed for the data points
             textSize={12}
             yAxisLabel="%"
             yAxisTextStyle={{ color: 'gray' }}
@@ -131,11 +160,11 @@ const styles = StyleSheet.create({
   tilePercentage: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#d9534f', // Red color for severity
+      // color is now applied dynamically
   },
   tileSeverity: {
       fontSize: 12,
-      color: '#d9534f',
+      // color is now applied dynamically
   },
   chartContainer: {
     backgroundColor: '#FFFFFF',
@@ -145,7 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 3,
     shadowColor: '#ccc',
-    marginBottom: 40, // Add space at the bottom
+    marginBottom: 40,
   },
   noDataText: {
       textAlign: 'center',
