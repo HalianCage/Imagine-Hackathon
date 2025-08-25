@@ -30,7 +30,7 @@ const CropMonitoring = () => {
         
         // --- 1. FETCH DATA FROM BACKEND ---
         // Using the IP from your other files. Replace if needed.
-        const response = await fetch("http://192.168.0.105:3000/getReports");
+        const response = await fetch("http://192.168.0.107:3000/getReports");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

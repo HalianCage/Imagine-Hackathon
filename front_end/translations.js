@@ -69,6 +69,8 @@ const translations = {
     scheme_details_how_to_apply: "How to apply?",
     scheme_details_documents_needed: "Documents Needed",
     scheme_details_official_link_button: "Visit Official Website",
+    national_schemes_header: "National Policies",
+    state_schemes_header: "State Policies",
   },
   hi: {
     app_title: "क्रॉपकेयर",
@@ -139,6 +141,8 @@ const translations = {
     scheme_details_how_to_apply: "आवेदन कैसे करें?",
     scheme_details_documents_needed: "आवश्यक दस्तावेज़",
     scheme_details_official_link_button: "आधिकारिक वेबसाइट पर जाएं",
+    national_schemes_header: "राष्ट्रीय नीतियां",
+    state_schemes_header: "राज्य नीतियां",
   },
   mr: {
     app_title: "क्रॉपकेअर",
@@ -209,6 +213,8 @@ const translations = {
     scheme_details_how_to_apply: "अर्ज कसा करावा?",
     scheme_details_documents_needed: "आवश्यक कागदपत्रे",
     scheme_details_official_link_button: "अधिकृत वेबसाइटला भेट द्या",
+    national_schemes_header: "राष्ट्रीय योजना",
+    state_schemes_header: "राज्य योजना",
   },
 };
 

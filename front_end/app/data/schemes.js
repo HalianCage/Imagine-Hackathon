@@ -5,6 +5,7 @@ const schemes = {
     {
       id: "pm_kisan",
       title: "PM-KISAN Samman Nidhi",
+      type: "National",
       icon: "account-balance-wallet",
       summary: "Direct income support of ₹6,000 per year for farmer families.",
       details: {
@@ -31,6 +32,7 @@ const schemes = {
     {
       id: "pm_fby",
       title: "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+      type: "National",
       icon: "umbrella",
       summary: "Crop insurance scheme to protect farmers against crop loss or damage.",
       details: {
@@ -56,6 +58,7 @@ const schemes = {
     {
         id: "kcc",
         title: "Kisan Credit Card (KCC)",
+        type: "National",
         icon: "credit-card",
         summary: "Provides affordable credit to farmers for their cultivation and other needs.",
         details: {
@@ -84,6 +87,7 @@ const schemes = {
     {
         id: "shc",
         title: "Soil Health Card (SHC) Scheme",
+        type: "National",
         icon: "grass",
         summary: "Provides farmers with a report on their soil's health and nutrient status.",
         details: {
@@ -107,6 +111,7 @@ const schemes = {
     {
         id: "pm_kusum",
         title: "PM-KUSUM Scheme",
+        type: "National",
         icon: "solar-power",
         summary: "Promotes the use of solar energy for agricultural purposes.",
         details: {
@@ -131,12 +136,67 @@ const schemes = {
           ],
           official_link: "https://pmkusum.mnre.gov.in/"
         }
+    },
+
+    {
+    "id": "gmsavy",
+    "title": "Gopinath Munde Shetkari Apghat Vima Yojana",
+    "icon": "shield",
+    "type": "State (Maharashtra)",
+    "summary": "Provides accident insurance cover to farmers in the state.",
+    "details": {
+      "what_is_it": "This scheme provides financial support to the family of a farmer in case of accidental death or disability.",
+      "benefits": [
+        "Financial compensation of up to ₹2 lakh in case of accidental death or permanent disability.",
+        "Compensation of up to ₹1 lakh for partial disability due to an accident."
+      ],
+      "who_can_apply": [
+        "All farmers in Maharashtra aged between 10 and 75 years, whose name appears on the 7/12 land extract.",
+        "The farmer's family does not have to pay any premium for this insurance."
+      ],
+      "how_to_apply": "In the unfortunate event of an accident, the farmer's family must submit a claim form along with required documents to the Taluka Agriculture Officer.",
+      "documents_needed": [
+        "7/12 extract, 8A extract",
+        "FIR copy (in case of road accident, etc.)",
+        "Post Mortem report",
+        "Death Certificate",
+        "Heir Certificate"
+      ],
+      "official_link": "https://krishi.maharashtra.gov.in/en/g-munde-shetkari-apghat-vima-yojana"
     }
-  ],
+  },
+  {
+    "id": "bffly",
+    "title": "Bhausaheb Fundkar Falbag Lagvad Yojana",
+    "icon": "park",
+    "type": "State (Maharashtra)",
+    "summary": "A horticulture scheme to encourage the plantation of orchards.",
+    "details": {
+      "what_is_it": "This scheme provides financial assistance to farmers for planting specific fruit crops, promoting diversification and increasing long-term income.",
+      "benefits": [
+        "100% subsidy provided for the cost of saplings, fertilizers, and other inputs over a period of three years.",
+        "Covers a variety of fruit crops like Mango, Cashew, Guava, Pomegranate, etc.",
+        "Promotes integrated pest management and modern horticultural practices."
+      ],
+      "who_can_apply": [
+        "All farmers in Maharashtra are eligible.",
+        "A minimum land area of 0.20 hectares and a maximum of 6 hectares is applicable."
+      ],
+      "how_to_apply": "Farmers can apply online through the 'Mahadbt' portal under the agriculture section when applications are open.",
+      "documents_needed": [
+        "7/12 and 8A extract (Land records)",
+        "Aadhaar card linked bank account",
+        "Caste certificate (if applicable for certain sub-schemes)"
+      ],
+      "official_link": "https://mahadbt.maharashtra.gov.in/"
+    }
+}
+    ],
   hi: [
     {
       id: "pm_kisan",
       title: "पीएम-किसान सम्मान निधि",
+      type: "राष्ट्रीय",
       icon: "account-balance-wallet",
       summary: "किसान परिवारों को प्रति वर्ष ₹6,000 की सीधी आय सहायता।",
       details: {
@@ -163,6 +223,7 @@ const schemes = {
     {
       id: "pm_fby",
       title: "प्रधानमंत्री फसल बीमा योजना (पीएमएफबीवाई)",
+      type: "राष्ट्रीय",
       icon: "umbrella",
       summary: "फसल के नुकसान या क्षति के खिलाफ किसानों की सुरक्षा के लिए फसल बीमा योजना।",
       details: {
@@ -188,6 +249,7 @@ const schemes = {
     {
         id: "kcc",
         title: "किसान क्रेडिट कार्ड (केसीसी)",
+        type: "राष्ट्रीय",
         icon: "credit-card",
         summary: "किसानों को उनकी खेती और अन्य जरूरतों के लिए सस्ता कर्ज प्रदान करता है।",
         details: {
@@ -216,6 +278,7 @@ const schemes = {
     {
         id: "shc",
         title: "मृदा स्वास्थ्य कार्ड (एसएचसी) योजना",
+        type: "राष्ट्रीय",
         icon: "grass",
         summary: "किसानों को उनकी मिट्टी के स्वास्थ्य और पोषक तत्वों की स्थिति पर एक रिपोर्ट प्रदान करता है।",
         details: {
@@ -239,6 +302,7 @@ const schemes = {
     {
         id: "pm_kusum",
         title: "पीएम-कुसुम योजना",
+        type: "राष्ट्रीय",
         icon: "solar-power",
         summary: "कृषि उद्देश्यों के लिए सौर ऊर्जा के उपयोग को बढ़ावा देता है।",
         details: {
@@ -263,12 +327,43 @@ const schemes = {
           ],
           official_link: "https://pmkusum.mnre.gov.in/"
         }
+    },
+    {
+    "id": "gmsavy",
+    "title": "गोपीनाथ मुंडे शेतकरी अपघात विमा योजना",
+    "icon": "shield",
+    "type": "राज्य (महाराष्ट्र)",
+    "summary": "राज्य में किसानों को दुर्घटना बीमा कवर प्रदान करता है।",
+    "details": {
+        "what_is_it": "यह योजना आकस्मिक मृत्यु या विकलांगता की स्थिति में किसान के परिवार को वित्तीय सहायता प्रदान करती है।",
+        "benefits": ["आकस्मिक मृत्यु या स्थायी विकलांगता की स्थिति में ₹2 लाख तक का वित्तीय मुआवजा।","दुर्घटना के कारण आंशिक विकलांगता के लिए ₹1 लाख तक का मुआवजा।"],
+        "who_can_apply": ["महाराष्ट्र में 10 से 75 वर्ष की आयु के सभी किसान, जिनका नाम 7/12 भूमि उद्धरण पर है।","इस बीमा के लिए किसान के परिवार को कोई प्रीमियम नहीं देना पड़ता है।"],
+        "how_to_apply": "दुर्घटना की दुर्भाग्यपूर्ण घटना में, किसान के परिवार को आवश्यक दस्तावेजों के साथ तालुका कृषि अधिकारी को एक दावा प्रपत्र प्रस्तुत करना होगा।",
+        "documents_needed": ["7/12 उतारा, 8A उतारा","एफआईआर कॉपी (सड़क दुर्घटना आदि के मामले में)","पोस्टमार्टम रिपोर्ट","मृत्यु प्रमाण पत्र","उत्तराधिकार प्रमाण पत्र"],
+        "official_link": "https://krishi.maharashtra.gov.in/mr/g-munde-shetkari-apghat-vima-yojana"
     }
+},
+{
+    "id": "bffly",
+    "title": "भाऊसाहेब फुंडकर फळबाग लागवड योजना",
+    "icon": "park",
+    "type": "राज्य (महाराष्ट्र)",
+    "summary": "फळबागांच्या लागवडीला प्रोत्साहन देण्यासाठी एक फलोत्पादन योजना।",
+    "details": {
+        "what_is_it": "यह योजना किसानों को विशिष्ट फल फसलों के रोपण, विविधीकरण को बढ़ावा देने और दीर्घकालिक आय बढ़ाने के लिए वित्तीय सहायता प्रदान करती है।",
+        "benefits": ["तीन साल की अवधि में पौधे, उर्वरक और अन्य आदानों की लागत के लिए 100% सब्सिडी प्रदान की जाती है।","आम, काजू, अमरूद, अनार आदि जैसी विभिन्न फल फसलों को शामिल करता है।","एकीकृत कीट प्रबंधन और आधुनिक बागवानी प्रथाओं को बढ़ावा देता है।"],
+        "who_can_apply": ["महाराष्ट्र के सभी किसान पात्र हैं।","न्यूनतम 0.20 हेक्टेयर और अधिकतम 6 हेक्टेयर भूमि क्षेत्र लागू है।"],
+        "how_to_apply": "आवेदन खुले होने पर किसान 'महाडीबीटी' पोर्टल के माध्यम से कृषि अनुभाग के तहत ऑनलाइन आवेदन कर सकते हैं।",
+        "documents_needed": ["7/12 और 8A उतारा (भूमि रिकॉर्ड)","आधार कार्ड से जुड़ा बैंक खाता","जाति प्रमाण पत्र (यदि कुछ उप-योजनाओं के लिए लागू हो)"],
+        "official_link": "https://mahadbt.maharashtra.gov.in/"
+    }
+}
   ],
   mr: [
     {
       id: "pm_kisan",
       title: "पीएम-किसान सन्मान निधी",
+      type: "राष्ट्रीय",
       icon: "account-balance-wallet",
       summary: "शेतकरी कुटुंबांना प्रतिवर्षी ₹6,000 थेट उत्पन्न सहाय्य.",
       details: {
@@ -295,6 +390,7 @@ const schemes = {
     {
       id: "pm_fby",
       title: "प्रधानमंत्री फसल विमा योजना (पीएमएफबीवाय)",
+      type: "राष्ट्रीय",
       icon: "umbrella",
       summary: "पीक नुकसान किंवा नुकसानीपासून शेतकऱ्यांचे संरक्षण करण्यासाठी पीक विमा योजना.",
       details: {
@@ -320,6 +416,7 @@ const schemes = {
     {
         id: "kcc",
         title: "किसान क्रेडिट कार्ड (केसीसी)",
+        type: "राष्ट्रीय",
         icon: "credit-card",
         summary: "शेतकऱ्यांना त्यांच्या शेती आणि इतर गरजांसाठी स्वस्त कर्ज उपलब्ध करून देते.",
         details: {
@@ -348,6 +445,7 @@ const schemes = {
     {
         id: "shc",
         title: "मृदा आरोग्य कार्ड (एसएचसी) योजना",
+        type: "राष्ट्रीय",
         icon: "grass",
         summary: "शेतकऱ्यांना त्यांच्या जमिनीच्या आरोग्यावर आणि पोषक तत्वांच्या स्थितीवर अहवाल प्रदान करते.",
         details: {
@@ -371,6 +469,7 @@ const schemes = {
     {
         id: "pm_kusum",
         title: "पीएम-कुसुम योजना",
+        type: "राष्ट्रीय",
         icon: "solar-power",
         summary: "कृषी उद्देशांसाठी सौर ऊर्जेच्या वापरास प्रोत्साहन देते.",
         details: {
@@ -395,7 +494,37 @@ const schemes = {
           ],
           official_link: "https://pmkusum.mnre.gov.in/"
         }
+    },
+    {
+    "id": "gmsavy",
+    "title": "गोपीनाथ मुंडे शेतकरी अपघात विमा योजना",
+    "icon": "shield",
+    "type": "राज्य (महाराष्ट्र)",
+    "summary": "राज्यातील शेतकऱ्यांना अपघात विमा संरक्षण प्रदान करते.",
+    "details": {
+        "what_is_it": "अपघाती मृत्यू किंवा अपंगत्व आल्यास शेतकऱ्याच्या कुटुंबाला आर्थिक सहाय्य देण्यासाठी ही योजना आहे.",
+        "benefits": ["अपघाती मृत्यू किंवा कायमचे अपंगत्व आल्यास ₹2 लाखांपर्यंत आर्थिक भरपाई.","अपघातामुळे अंशिक अपंगत्व आल्यास ₹1 लाखांपर्यंत भरपाई."],
+        "who_can_apply": ["महाराष्ट्रातील 10 ते 75 वर्षे वयोगटातील सर्व शेतकरी, ज्यांचे नाव 7/12 उताऱ्यावर आहे.","या विम्यासाठी शेतकऱ्याच्या कुटुंबाला कोणताही हप्ता भरावा लागत नाही."],
+        "how_to_apply": "अपघात घडल्यास, शेतकऱ्याच्या कुटुंबाने आवश्यक कागदपत्रांसह तालुका कृषी अधिकाऱ्याकडे दावा अर्ज सादर करणे आवश्यक आहे.",
+        "documents_needed": ["7/12 उतारा, 8A उतारा","एफआयआर प्रत (रस्ता अपघात इ. झाल्यास)","पोस्ट मार्टेम अहवाल","मृत्यूचा दाखला","वारस प्रमाणपत्र"],
+        "official_link": "https://krishi.maharashtra.gov.in/mr/g-munde-shetkari-apghat-vima-yojana"
     }
+},
+{
+    "id": "bffly",
+    "title": "भाऊसाहेब फुंडकर फळबाग लागवड योजना",
+    "icon": "park",
+    "type": "राज्य (महाराष्ट्र)",
+    "summary": "फळबागांच्या लागवडीला प्रोत्साहन देण्यासाठी एक फलोत्पादन योजना.",
+    "details": {
+        "what_is_it": "ही योजना शेतकऱ्यांना विशिष्ट फळपिकांच्या लागवडीसाठी, विविधतेला प्रोत्साहन देण्यासाठी आणि दीर्घकालीन उत्पन्न वाढवण्यासाठी आर्थिक सहाय्य पुरवते.",
+        "benefits": ["तीन वर्षांच्या कालावधीत रोपे, खते आणि इतर निविष्ठांच्या खर्चासाठी 100% अनुदान दिले जाते.","आंबा, काजू, पेरू, डाळिंब इत्यादी विविध फळपिकांना संरक्षण देते.","एकात्मिक कीड व्यवस्थापन आणि आधुनिक फलोत्पादन पद्धतींना प्रोत्साहन देते."],
+        "who_can_apply": ["महाराष्ट्रातील सर्व शेतकरी पात्र आहेत.","किमान 0.20 हेक्टर आणि कमाल 6 हेक्टर क्षेत्र मर्यादा लागू आहे."],
+        "how_to_apply": "अर्ज खुले असताना शेतकरी 'महाडीबीटी' पोर्टलवर कृषी विभागांतर्गत ऑनलाइन अर्ज करू शकतात.",
+        "documents_needed": ["7/12 आणि 8A उतारा (जमिनीची कागदपत्रे)","आधार कार्ड लिंक केलेले बँक खाते","जातीचा दाखला (काही उप-योजनांसाठी लागू असल्यास)"],
+        "official_link": "https://mahadbt.maharashtra.gov.in/"
+    }
+}
   ]
 };
 
