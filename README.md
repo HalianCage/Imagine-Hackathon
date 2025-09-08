@@ -60,7 +60,8 @@ This helps farmers understand and manage crop health effectively and sustainably
 
 ## Sample Output
 
-[📽️Demo video](/demo.mp4)
+[📽️Demo video 1](/demo1.mp4)
+[📽️Demo video 2](/demo2.mp4)
 
   ## Creators
 
